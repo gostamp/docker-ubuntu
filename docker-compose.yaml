@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  app:
+    image: ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}:${APP_TAG}
+    build:
+      context: .
+      target: ${APP_TARGET}
+      args:
+        # Also set as env var in the built image
+        APP_TARGET: ${APP_TARGET}
+    environment:
+      - APP_ENV
+      - APP_NAME
+      - APP_REGISTRY
+      - APP_TAG
+      - APP_TARGET
+      - APP_USER
+      - SOPS_AGE_KEY_FILE=/run/secrets/sops-age-key
+      - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
+    hostname: ${APP_NAME}-${APP_TARGET}
+    init: true
+    user: ${APP_USER}
+    volumes:
+      # Forward the SSH agent from the host OS so we can use git, ssh, etc.
+      # See https://docs.docker.com/desktop/networking/#ssh-agent-forwarding
+      - type: bind
+        source: /run/host-services/ssh-auth.sock
+        target: /run/host-services/ssh-auth.sock
+      # Persist home dir content (bash history, caches, etc).
+      - home-data:${APP_HOME}
+      # Pull in the user's gitconfig.
+      - ~/.gitconfig:${APP_HOME}/.gitconfig
+      # Pull in the sops encryption key (if present).
+      - ${SOPS_AGE_KEY_FILE:-/dev/null}:/run/secrets/sops-age-key
+      # And finally mount the current dir to /app.
+      - .:/app
+
+volumes:
+  home-data: {}

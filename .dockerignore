@@ -1,0 +1,11 @@
+.dockerignore
+.env
+.env.example
+.git
+.gitattributes
+.gitignore
+docker-compose.yaml
+Dockerfile
+LICENSE
+Makefile
+README.md
