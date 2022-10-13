@@ -1,0 +1,40 @@
+---
+default_install_hook_types: [commit-msg, pre-commit]
+default_stages: [commit, manual]
+fail_fast: true
+
+repos:
+  - repo: local
+    hooks:
+      # https://github.com/mvdan/sh
+      - id: shfmt
+        name: Format shell scripts
+        entry: ./bin/run-in-container.sh shfmt --write
+        language: system
+        types_or:
+          - dockerfile
+          - shell
+
+      # https://github.com/hadolint/hadolint
+      - id: hadolint
+        name: Lint Dockerfile
+        entry: ./bin/run-in-container.sh hadolint
+        language: system
+        types:
+          - dockerfile
+
+      # https://github.com/igorshubovych/markdownlint-cli
+      - id: markdownlint
+        name: Lint markdown files
+        entry: ./bin/run-in-container.sh markdownlint --dot --fix
+        language: system
+        types:
+          - markdown
+
+      # https://github.com/koalaman/shellcheck
+      - id: shellcheck
+        name: Lint shell scripts
+        entry: ./bin/run-in-container.sh shellcheck -x --source-path=SCRIPTDIR
+        language: system
+        types:
+          - shell

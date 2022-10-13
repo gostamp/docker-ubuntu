@@ -4,7 +4,7 @@
 
 - [x] Setup sops
 - [ ] Create secrets-* scripts
-- [ ] Setup linting/formatting
+- [x] Setup linting/formatting
 - [ ] Container tests?
 - [ ] Setup GHA workflow w/ lint+test
 - [ ] Setup container registry
@@ -14,8 +14,6 @@
   - [ ] Copy settings to base project generator
 
 ## Tools to consider adding
-
-- pre-commit
 
 ### Docker
 
@@ -39,6 +37,7 @@
 
 ### Security
 
+- <https://github.com/zricethezav/gitleaks>
 - <https://github.com/trufflesecurity/trufflehog>
 - <https://github.com/returntocorp/semgrep>
 - <https://github.com/microsoft/DevSkim>

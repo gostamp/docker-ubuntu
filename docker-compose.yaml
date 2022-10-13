@@ -16,6 +16,7 @@ services:
       - APP_TAG
       - APP_TARGET
       - APP_USER
+      - DEBUG
       - SOPS_AGE_KEY_FILE=/run/secrets/sops-age-key
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
     hostname: ${APP_NAME}-${APP_TARGET}

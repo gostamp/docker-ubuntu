@@ -11,7 +11,8 @@ ENV APP_GID="10001" \
     APP_USER="app" \
     LANG="C.utf8" \
     LANGUAGE="C.utf8" \
-    LC_ALL="C.utf8"
+    LC_ALL="C.utf8" \
+    RUNNING_IN_CONTAINER=1
 
 # Create app user and /app dir
 RUN <<EOF
@@ -25,7 +26,6 @@ EOF
 WORKDIR ${APP_DIR}
 ENTRYPOINT ["/app/bin/entrypoint.sh"]
 CMD ["/app/bin/command.sh"]
-
 
 #######################################################
 # APP_TARGET: full
@@ -125,17 +125,22 @@ RUN <<EOF
         "loglevel=warn" \
         "update-notifier=false"
     npm install --global \
-        "markdownlint-cli2@~0.5.1" \
+        "markdownlint-cli@~0.32.2" \
         "semantic-release@~19.0.5"
 
     # Allow app user to sudo
     echo 'app ALL=(root) NOPASSWD:ALL' > /etc/sudoers.d/app
     chmod 0440 /etc/sudoers.d/app
+
+    pip install --no-cache-dir "pre-commit==2.20.0"
 EOF
 
-# Setup the app user's home dir
+COPY ./bin/pre-commit-* /usr/local/bin/
 COPY ./etc/dotfiles/* ${APP_HOME}/
+COPY .pre-commit-config.yaml ${APP_DIR}/
 RUN <<EOF
+    /usr/local/bin/pre-commit-build
+
     mkdir -p "${APP_HOME}/.ssh"
     chmod 0700 "${APP_HOME}/.ssh"
     chown -R "${APP_UID}:${APP_GID}" "${APP_HOME}"
@@ -149,7 +154,6 @@ USER ${APP_USER}
 ARG APP_TARGET
 ENV APP_TARGET=${APP_TARGET} \
     APP_ENV=local
-
 
 #######################################################
 # APP_TARGET: slim

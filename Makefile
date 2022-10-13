@@ -6,28 +6,31 @@ endif
 include .env
 export $(shell sed 's/=.*//' .env)
 
+# Always use buildkit
+export COMPOSE_DOCKER_CLI_BUILD := 1
 export DOCKER_BUILDKIT := 1
 
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
+
 ##@ App
 
-.PHONY: format
-format: ## Format files
-	docker-compose run --rm app ./bin/format.sh
-
 .PHONY: lint
-lint: ## Lint files
-	docker-compose run --rm app ./bin/lint.sh
+lint: ## Lint and format files
+	./bin/run-in-container.sh ./bin/lint.sh
 
 .PHONY: run
 run: ## Run the container
-	docker-compose up app
+	./bin/run-in-container.sh ./bin/command.sh
+
+.PHONY: shell
+shell: ## Shell into the container
+	./bin/run-in-container.sh bash
 
 .PHONY: test
 test: ## Test the container
-	docker-compose run --rm app ./bin/test.sh
+	./bin/run-in-container.sh ./bin/test.sh
 
 
 ##@ Docker
@@ -56,10 +59,6 @@ docker-clean: ## Cleanup containers and persistent volumes
 setup: ## Setup everything needed for local development
 	@if command -v docker-compose >/dev/null 2>&1; then echo "Found docker-compose"; else echo "Unable to find docker-compose!"; exit 1; fi
 	@echo "Building..." && echo "" && $(MAKE) docker-build
-
-.PHONY: shell
-shell: ## Shell into the container
-	docker-compose run --rm app bash
 
 # Via https://www.thapaliya.com/en/writings/well-documented-makefiles/
 # Note: The `##@` comments determine grouping
