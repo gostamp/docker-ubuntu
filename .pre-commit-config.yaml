@@ -70,3 +70,14 @@ repos:
         language: system
         types:
           - shell
+
+      # https://github.com/jorisroovers/gitlint
+      - id: gitlint
+        name: "Lint: gitlint"
+        entry: ./bin/run-in-container.sh gitlint
+        args:
+          - --staged
+          - --msg-filename
+        language: system
+        stages:
+          - commit-msg

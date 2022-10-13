@@ -139,7 +139,7 @@ RUN <<EOF
         --global
 
     pip install \
-        "commitizen==0.9.2" \
+        "commitizen==2.35.0" \
         "gitlint==0.17.0" \
         "pre-commit==2.20.0" \
         --disable-pip-version-check \

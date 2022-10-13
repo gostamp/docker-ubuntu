@@ -7,6 +7,9 @@ dictionaries:
   - cpp
   - python
   - python-common
+enableFiletypes:
+  - ini
+  - toml
 ignorePaths:
   - .bashrc
   - .ecrc
@@ -18,6 +21,7 @@ ignorePaths:
   - CHANGELOG.md
   - cspell.yaml
   - secrets.yaml
+
 words:
   - buildkit
   - devcontainer
