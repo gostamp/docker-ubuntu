@@ -40,6 +40,18 @@ repos:
         types:
           - text
 
+      # https://github.com/zricethezav/gitleaks
+      - id: gitleaks
+        name: "Lint: gitleaks"
+        entry: ./bin/run-in-container.sh gitleaks protect
+        args:
+          - --redact
+          - --verbose
+        pass_filenames: false
+        language: system
+        types:
+          - text
+
       # https://github.com/hadolint/hadolint
       - id: hadolint
         name: "Lint: hadolint"
@@ -71,6 +83,8 @@ repos:
         types:
           - shell
 
+  - repo: local
+    hooks:
       # https://github.com/jorisroovers/gitlint
       - id: gitlint
         name: "Lint: gitlint"

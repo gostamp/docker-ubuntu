@@ -1,4 +1,3 @@
----
 $schema: https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
 version: "0.2"
 language: en
@@ -21,12 +20,12 @@ ignorePaths:
   - CHANGELOG.md
   - cspell.yaml
   - secrets.yaml
-
 words:
   - buildkit
   - devcontainer
   - devcontainers
   - dotfiles
+  - gitleaks
   - gitlint
   - gostamp
   - hadolint

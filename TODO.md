@@ -25,18 +25,14 @@
 
 - <https://github.com/sql-formatter-org/sql-formatter>
 - <https://github.com/sqlfluff/sqlfluff>
-- <https://github.com/editorconfig-checker/editorconfig-checker>
 - <https://github.com/pivotal/LicenseFinder>
-- <https://github.com/jorisroovers/gitlint>
 
 ### Spelling/Grammar
 
 - <https://github.com/errata-ai/vale>
-- <https://github.com/streetsidesoftware/cspell>
 
 ### Security
 
-- <https://github.com/zricethezav/gitleaks>
 - <https://github.com/trufflesecurity/trufflehog>
 - <https://github.com/returntocorp/semgrep>
 - <https://github.com/microsoft/DevSkim>

@@ -65,6 +65,7 @@ RUN <<EOF
     # non-packaged dependencies
     CST_VERSION="v1.11.0"
     EC_VERSION="2.6.0"
+    GITLEAKS_VERSION="v8.15.0"
     GUM_VERSION="v0.7.0"
     HADOLINT_VERSION="v2.10.0"
     HUGO_VERSION="v0.104.3"
@@ -111,8 +112,8 @@ RUN <<EOF
 
     pushd /tmp > /dev/null || exit
     tarfile="gum_${GUM_VERSION#v}_linux_${ARCH}.tar.gz"
-    curl -fsSL -O "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${tarfile}" > "./${tarfile}"
-    curl -fsSL -O "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/checksums.txt" > ./checksums.txt
+    curl -fsSL "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${tarfile}" > "./${tarfile}"
+    curl -fsSL "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/checksums.txt" > ./checksums.txt
     sha256sum --check --ignore-missing ./checksums.txt
     tar -xzf "./${tarfile}"
     cp ./gum /usr/local/bin/gum
@@ -120,6 +121,20 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
+    # You would think this would be standardized by now :roll_eyes:.
+    if [[ "${TARGETARCH}" == "amd64" ]]; then
+        ARCH="x64"
+    fi
+    pushd /tmp > /dev/null || exit
+    tarfile="gitleaks_${GITLEAKS_VERSION#v}_linux_${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/zricethezav/gitleaks/releases/download/${GITLEAKS_VERSION}/${tarfile}" > "./${tarfile}"
+    tar -xzf "./${tarfile}"
+    ./gitleaks completion bash > /etc/bash_completion.d/gitleaks
+    cp ./gitleaks /usr/local/bin/gitleaks
+    popd > /dev/null || exit
+    rm -Rf /tmp/*
+
+    chmod -R 0755 /etc/bash_completion.d
     chmod -R 0755 /usr/local/bin
 EOF
 
