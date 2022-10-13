@@ -8,16 +8,41 @@ repos:
     hooks:
       # https://github.com/mvdan/sh
       - id: shfmt
-        name: Format shell scripts
-        entry: ./bin/run-in-container.sh shfmt --write
+        name: "Format: shfmt"
+        entry: ./bin/run-in-container.sh shfmt
+        args:
+          - --write
         language: system
         types_or:
           - dockerfile
           - shell
 
+      # https://github.com/streetsidesoftware/cspell
+      - id: cspell
+        name: "Lint: cspell"
+        entry: ./bin/run-in-container.sh cspell
+        args:
+          - --gitignore
+          - --no-must-find-files
+          - --no-progress
+          - --no-summary
+          - --show-suggestions
+        language: system
+        require_serial: true
+        types:
+          - text
+
+      # https://github.com/editorconfig-checker/editorconfig-checker
+      - id: editorconfig-checker
+        name: "Lint: editorconfig-checker"
+        entry: ./bin/run-in-container.sh ec
+        language: system
+        types:
+          - text
+
       # https://github.com/hadolint/hadolint
       - id: hadolint
-        name: Lint Dockerfile
+        name: "Lint: hadolint"
         entry: ./bin/run-in-container.sh hadolint
         language: system
         types:
@@ -25,16 +50,23 @@ repos:
 
       # https://github.com/igorshubovych/markdownlint-cli
       - id: markdownlint
-        name: Lint markdown files
-        entry: ./bin/run-in-container.sh markdownlint --dot --fix
+        name: "Lint: markdownlint"
+        entry: ./bin/run-in-container.sh markdownlint
+        args:
+          - --dot
+          - --fix
         language: system
         types:
           - markdown
 
       # https://github.com/koalaman/shellcheck
       - id: shellcheck
-        name: Lint shell scripts
-        entry: ./bin/run-in-container.sh shellcheck -x --source-path=SCRIPTDIR
+        name: "Lint: shellcheck"
+        entry: ./bin/run-in-container.sh shellcheck
+        args:
+          - --check-sourced
+          - --external-sources
+          - --source-path=SCRIPTDIR # spell: disable-line
         language: system
         types:
           - shell

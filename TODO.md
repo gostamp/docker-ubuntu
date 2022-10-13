@@ -26,9 +26,8 @@
 - <https://github.com/sql-formatter-org/sql-formatter>
 - <https://github.com/sqlfluff/sqlfluff>
 - <https://github.com/editorconfig-checker/editorconfig-checker>
-- <https://github.com/mrtazz/checkmake>
-- <https://github.com/zaach/jsonlint>
 - <https://github.com/pivotal/LicenseFinder>
+- <https://github.com/jorisroovers/gitlint>
 
 ### Spelling/Grammar
 

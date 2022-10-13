@@ -38,6 +38,7 @@ FROM base AS full
 # See: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-o", "errexit", "-c"]
 
+ARG TARGETARCH
 RUN <<EOF
     apt-get update
     apt-get install -y --no-install-recommends \
@@ -60,19 +61,19 @@ RUN <<EOF
         "sudo=1.9.*" \
         "tree=2.0.*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-EOF
 
-ARG TARGETARCH
-RUN <<EOF
-    ARCH="${TARGETARCH}"
-    LICENSE_VERSION="v5.0.4"
-    YQ_VERSION="v4.28.1"
+    # non-packaged dependencies
     CST_VERSION="v1.11.0"
-    SOPS_VERSION="v3.7.3"
-    SHFMT_VERSION="v3.5.1"
+    EC_VERSION="2.6.0"
     GUM_VERSION="v0.7.0"
     HADOLINT_VERSION="v2.10.0"
     HUGO_VERSION="v0.104.3"
+    LICENSE_VERSION="v5.0.4"
+    SHFMT_VERSION="v3.5.1"
+    SOPS_VERSION="v3.7.3"
+    YQ_VERSION="v4.28.1"
+
+    ARCH="${TARGETARCH}"
 
     # None of the following prints anything to stdout,
     # so turn on echoing so it doesn't look like the build is stuck.
@@ -84,7 +85,13 @@ RUN <<EOF
     curl -fsSL "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${ARCH}" > /usr/local/bin/sops
     curl -fsSL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${ARCH}" > /usr/local/bin/yq
 
+    pushd /tmp > /dev/null || exit
+    curl -fsSL "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${EC_VERSION}/ec-linux-${ARCH}.tar.gz" > "./ec-linux-${ARCH}.tar.gz"
+    tar -xzf "./ec-linux-${ARCH}.tar.gz"
+    cp ./bin/ec-linux-${ARCH} /usr/local/bin/ec
+    popd > /dev/null || exit
     rm -Rf /tmp/*
+
     pushd /tmp > /dev/null || exit
     tarfile="hugo_extended_${HUGO_VERSION#v}_linux-${ARCH}.tar.gz"
     curl -fsSL "https://github.com/gohugoio/hugo/releases/download/${HUGO_VERSION}/${tarfile}" > "./${tarfile}"
@@ -102,7 +109,6 @@ RUN <<EOF
     fi
     curl -fsSL "https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-Linux-${ARCH}" > /usr/local/bin/hadolint
 
-    rm -Rf /tmp/*
     pushd /tmp > /dev/null || exit
     tarfile="gum_${GUM_VERSION#v}_linux_${ARCH}.tar.gz"
     curl -fsSL -O "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${tarfile}" > "./${tarfile}"
@@ -115,7 +121,9 @@ RUN <<EOF
     rm -Rf /tmp/*
 
     chmod -R 0755 /usr/local/bin
+EOF
 
+RUN <<EOF
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
     apt-get install -y --no-install-recommends "nodejs=16.*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -124,23 +132,31 @@ RUN <<EOF
         "fund=false" \
         "loglevel=warn" \
         "update-notifier=false"
-    npm install --global \
+    npm install \
+        "cspell@~6.12.0" \
         "markdownlint-cli@~0.32.2" \
-        "semantic-release@~19.0.5"
+        "semantic-release@~19.0.5" \
+        --global
+
+    pip install \
+        "commitizen==0.9.2" \
+        "gitlint==0.17.0" \
+        "pre-commit==2.20.0" \
+        --disable-pip-version-check \
+        --no-cache-dir
+EOF
+
+COPY ./etc/dotfiles/* ${APP_HOME}/
+COPY ./bin/pre-commit-* /usr/local/bin/
+COPY .pre-commit-config.yaml ${APP_DIR}/
+RUN <<EOF
+    /usr/local/bin/pre-commit-build.sh
 
     # Allow app user to sudo
     echo 'app ALL=(root) NOPASSWD:ALL' > /etc/sudoers.d/app
     chmod 0440 /etc/sudoers.d/app
 
-    pip install --no-cache-dir "pre-commit==2.20.0"
-EOF
-
-COPY ./bin/pre-commit-* /usr/local/bin/
-COPY ./etc/dotfiles/* ${APP_HOME}/
-COPY .pre-commit-config.yaml ${APP_DIR}/
-RUN <<EOF
-    /usr/local/bin/pre-commit-build
-
+    # Setup home dir
     mkdir -p "${APP_HOME}/.ssh"
     chmod 0700 "${APP_HOME}/.ssh"
     chown -R "${APP_UID}:${APP_GID}" "${APP_HOME}"

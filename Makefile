@@ -16,6 +16,9 @@ SHELL := /bin/bash
 
 ##@ App
 
+.PHONY: build
+build: docker-build
+
 .PHONY: lint
 lint: ## Lint and format files
 	./bin/run-in-container.sh ./bin/lint.sh
@@ -57,12 +60,16 @@ docker-clean: ## Cleanup containers and persistent volumes
 
 .PHONY: setup
 setup: ## Setup everything needed for local development
+# editorconfig-checker-disable
 	@if command -v docker-compose >/dev/null 2>&1; then echo "Found docker-compose"; else echo "Unable to find docker-compose!"; exit 1; fi
+# editorconfig-checker-enable
 	@echo "Building..." && echo "" && $(MAKE) docker-build
 
 # Via https://www.thapaliya.com/en/writings/well-documented-makefiles/
 # Note: The `##@` comments determine grouping
 .PHONY: help
 help: ## Display this help
+# editorconfig-checker-disable
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+# editorconfig-checker-enable
 	@echo ""

@@ -3,7 +3,7 @@ source "$(dirname "$0")/common.sh"
 
 current_env="${APP_ENV:?}"
 key_path="${SOPS_AGE_KEY_FILE:?}"
-dotenv_path="/app/etc/${current_env}/config.env"
+config_path="/app/etc/${current_env}/config.env"
 secrets_path="/app/etc/${current_env}/secrets.yaml"
 
 # Used by the Makefile to determine whether scripts
@@ -11,15 +11,15 @@ secrets_path="/app/etc/${current_env}/secrets.yaml"
 export RUNNING_IN_ENTRYPOINT=1
 
 # Sigh... get it together Docker for Mac :roll_eyes:
-sudo chown -R app:app /app
+sudo chown -R app:app /app /home/app
 
-pre-commit-restore
+/usr/local/bin/pre-commit-restore.sh
 
 # Source config.env if present
-if [ -f "${dotenv_path}" ]; then
+if [ -f "${config_path}" ]; then
     set -o allexport
     # shellcheck source=/dev/null
-    source "${dotenv_path}"
+    source "${config_path}"
     set +o allexport
 fi
 

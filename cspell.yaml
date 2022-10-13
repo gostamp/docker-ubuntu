@@ -1,0 +1,33 @@
+---
+$schema: https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
+version: "0.2"
+language: en
+dictionaries:
+  - bash
+  - cpp
+  - python
+  - python-common
+ignorePaths:
+  - .bashrc
+  - .ecrc
+  - .git/
+  - .gitattributes
+  - .gitignore
+  - .nanorc
+  - .sops.yaml
+  - CHANGELOG.md
+  - cspell.yaml
+  - secrets.yaml
+words:
+  - buildkit
+  - devcontainer
+  - devcontainers
+  - dotfiles
+  - gitlint
+  - gostamp
+  - hadolint
+  - ifeq
+  - markdownlint
+  - shellcheck
+  - shfmt
+  - twelvelabs

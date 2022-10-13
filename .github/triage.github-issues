@@ -1,7 +1,7 @@
 [
-  {
-    "kind": 2,
-    "language": "github-issues",
-    "value": "repo:gostamp/docker-ubuntu is:open"
-  }
+    {
+        "kind": 2,
+        "language": "github-issues",
+        "value": "repo:gostamp/docker-ubuntu is:open"
+    }
 ]
