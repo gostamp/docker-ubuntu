@@ -15,17 +15,25 @@
 
 ## Tools to consider adding
 
+- <https://github.com/stoplightio/spectral>
+- <https://github.com/pivotal/LicenseFinder>
+- <https://github.com/bridgecrewio/checkov>
+- <https://github.com/loeffel-io/ls-lint>
+
 ### Docker
 
 - <https://github.com/wemake-services/docker-image-size-limit>
 - <https://github.com/docker-slim/docker-slim>
 - <https://github.com/goodwithtech/dockle/>
 
-### Linting/Formatting
+### SQL
 
 - <https://github.com/sql-formatter-org/sql-formatter>
+  - <https://marketplace.visualstudio.com/items?itemName=inferrinizzard.prettier-sql-vscode>
 - <https://github.com/sqlfluff/sqlfluff>
-- <https://github.com/pivotal/LicenseFinder>
+- <https://github.com/joereynolds/sql-lint>
+  - <https://marketplace.visualstudio.com/items?itemName=qufiwefefwoyn.inline-sql-syntax>
+- <https://github.com/erik/squabble>
 
 ### Spelling/Grammar
 

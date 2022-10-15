@@ -17,6 +17,16 @@ repos:
           - dockerfile
           - shell
 
+      # https://github.com/google/yamlfmt
+      - id: yamlfmt
+        name: "Format: yamlfmt"
+        entry: ./bin/run-in-container.sh yamlfmt
+        args:
+          - --conf=.yamlfmt.yaml
+        language: system
+        types:
+          - yaml
+
       # https://github.com/streetsidesoftware/cspell
       - id: cspell
         name: "Lint: cspell"
@@ -29,6 +39,21 @@ repos:
           - --show-suggestions
         language: system
         require_serial: true
+        types:
+          - text
+
+      - id: dotenv-linter
+        name: "Lint: dotenv-linter"
+        entry: ./bin/run-in-container.sh dotenv-linter
+        args:
+          - --not-check-updates
+          # .env is in the .gitignore file, so pre-commit won't
+          # ever try to lint it - forcing to be thorough.
+          - .env
+        language: system
+        # .env OR .env.foo OR *.env
+        # See: https://rubular.com/r/sWEhRn1E2ALnwI
+        files: ^(\.env|\.env\.\w+|.+\.env)$
         types:
           - text
 
@@ -60,6 +85,16 @@ repos:
         types:
           - dockerfile
 
+      # https://github.com/prantlf/jsonlint
+      - id: jsonlint
+        name: "Lint: jsonlint"
+        entry: ./bin/run-in-container.sh jsonlint
+        args:
+          - --config=.jsonlint.yaml
+          - --in-place
+        language: system
+        files: (\.github-issues|\.json)$
+
       # https://github.com/igorshubovych/markdownlint-cli
       - id: markdownlint
         name: "Lint: markdownlint"
@@ -82,6 +117,16 @@ repos:
         language: system
         types:
           - shell
+
+      # https://github.com/adrienverge/yamllint
+      - id: yamllint
+        name: "Lint: yamllint"
+        entry: ./bin/run-in-container.sh yamllint
+        args:
+          - --strict
+        language: system
+        types:
+          - yaml
 
   - repo: local
     hooks:

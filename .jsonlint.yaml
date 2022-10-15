@@ -1,0 +1,21 @@
+---
+# Print only the parsed file names to stdout (vs. the JSON).
+log-files: true
+# Compact error display.
+compact: true
+# Ignore JavaScript-style comments (when parsing).
+comments: false
+# Continue with other files if an error occurs.
+continue: true
+# Allow duplicate object keys.
+duplicate-keys: false
+# Surrounds all strings with double quote.
+enforce-double-quotes: true
+# Number of spaces or specific characters to use for indentation.
+indent: 2
+# Sort object keys
+sort-keys: false
+# Ignore trailing commas in objects and arrays (when parsing).
+trailing-commas: false
+# Ensure a line break at the end of the output.
+trailing-newline: true

@@ -64,6 +64,7 @@ RUN <<EOF
 
     # non-packaged dependencies
     CST_VERSION="v1.11.0"
+    DOTENV_LINTER_VERSION="v3.2.0"
     EC_VERSION="2.6.0"
     GITLEAKS_VERSION="v8.15.0"
     GUM_VERSION="v0.7.0"
@@ -72,6 +73,7 @@ RUN <<EOF
     LICENSE_VERSION="v5.0.4"
     SHFMT_VERSION="v3.5.1"
     SOPS_VERSION="v3.7.3"
+    YAMLFMT_VERSION="v0.5.0"
     YQ_VERSION="v4.28.1"
 
     ARCH="${TARGETARCH}"
@@ -121,6 +123,16 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
+    pushd /tmp > /dev/null || exit
+    tarfile="yamlfmt_${YAMLFMT_VERSION#v}_Linux_${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/google/yamlfmt/releases/download/${YAMLFMT_VERSION}/${tarfile}" > "./${tarfile}"
+    curl -fsSL "https://github.com/google/yamlfmt/releases/download/${YAMLFMT_VERSION}/checksums.txt" > "./checksums.txt"
+    sha256sum --check --ignore-missing ./checksums.txt
+    tar -xzf "./${tarfile}"
+    cp ./yamlfmt /usr/local/bin/yamlfmt
+    popd > /dev/null || exit
+    rm -Rf /tmp/*
+
     # You would think this would be standardized by now :roll_eyes:.
     if [[ "${TARGETARCH}" == "amd64" ]]; then
         ARCH="x64"
@@ -131,6 +143,20 @@ RUN <<EOF
     tar -xzf "./${tarfile}"
     ./gitleaks completion bash > /etc/bash_completion.d/gitleaks
     cp ./gitleaks /usr/local/bin/gitleaks
+    popd > /dev/null || exit
+    rm -Rf /tmp/*
+
+    # oh, ffs... :dissapointed:.
+    if [[ "${TARGETARCH}" == "amd64" ]]; then
+        ARCH="x86_64"
+    elif [[ "${TARGETARCH}" == "arm64" ]]; then
+        ARCH="aarch64"
+    fi
+    pushd /tmp > /dev/null || exit
+    tarfile="dotenv-linter-linux-${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/dotenv-linter/dotenv-linter/releases/download/${DOTENV_LINTER_VERSION}/${tarfile}" > "./${tarfile}"
+    tar -xzf "./${tarfile}"
+    cp ./dotenv-linter /usr/local/bin/dotenv-linter
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
@@ -151,12 +177,14 @@ RUN <<EOF
         "cspell@~6.12.0" \
         "markdownlint-cli@~0.32.2" \
         "semantic-release@~19.0.5" \
+        "@prantlf/jsonlint@~11.7.0" \
         --global
 
     pip install \
-        "commitizen==2.35.0" \
-        "gitlint==0.17.0" \
-        "pre-commit==2.20.0" \
+        "commitizen~=2.35.0" \
+        "gitlint~=0.17.0" \
+        "pre-commit~=2.20.0" \
+        "yamllint~=1.28.0" \
         --disable-pip-version-check \
         --no-cache-dir
 EOF
@@ -165,6 +193,8 @@ COPY ./etc/dotfiles/* ${APP_HOME}/
 COPY ./bin/pre-commit-* /usr/local/bin/
 COPY .pre-commit-config.yaml ${APP_DIR}/
 RUN <<EOF
+    # Creates pre-commit hooks and stores them in /opt/build
+    # so that they can be restored into .git/hooks on container start.
     /usr/local/bin/pre-commit-build.sh
 
     # Allow app user to sudo
