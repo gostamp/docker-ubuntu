@@ -12,7 +12,7 @@ duplicate-keys: false
 # Surrounds all strings with double quote.
 enforce-double-quotes: true
 # Number of spaces or specific characters to use for indentation.
-indent: 2
+indent: 4
 # Sort object keys
 sort-keys: false
 # Ignore trailing commas in objects and arrays (when parsing).

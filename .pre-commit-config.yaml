@@ -93,7 +93,7 @@ repos:
           - --config=.jsonlint.yaml
           - --in-place
         language: system
-        files: (\.github-issues|\.json)$
+        files: ^(\.ecrc|.+\.github-issues|.+\.json)$ # spell: disable-line
 
       # https://github.com/igorshubovych/markdownlint-cli
       - id: markdownlint
