@@ -32,6 +32,7 @@ shell: ## Shell into the container
 	./bin/run-in-container.sh bash
 
 .PHONY: test
+test: APP_ENV := test
 test: ## Test the container
 	./bin/run-in-container.sh ./bin/test.sh
 
@@ -63,6 +64,7 @@ setup: ## Setup everything needed for local development
 # editorconfig-checker-disable
 	@if command -v docker-compose >/dev/null 2>&1; then echo "Found docker-compose"; else echo "Unable to find docker-compose!"; exit 1; fi
 # editorconfig-checker-enable
+	mkdir -p ~/.sops && touch ~/.sops/sops-age-key.txt && chmod 0600 ~/.sops/sops-age-key.txt
 	@echo "Building..." && echo "" && $(MAKE) docker-build
 
 # Via https://www.thapaliya.com/en/writings/well-documented-makefiles/

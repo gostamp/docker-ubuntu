@@ -18,7 +18,7 @@ services:
       - APP_TARGET
       - APP_USER
       - DEBUG
-      - SOPS_AGE_KEY_FILE=/run/secrets/sops-age-key
+      - SOPS_AGE_KEY_FILE=/run/secrets/sops-age-key.txt
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
     hostname: ${APP_NAME}-${APP_TARGET}
     init: true
@@ -35,8 +35,8 @@ services:
       - ~/.gitconfig:${APP_HOME}/.gitconfig
       # Pull in the users ssh keys for git signing
       - ~/.ssh:${APP_HOME}/.ssh
-      # Pull in the sops encryption key (if present).
-      - ${SOPS_AGE_KEY_FILE:-/dev/null}:/run/secrets/sops-age-key
+      # Pull in the sops encryption key.
+      - ~/.sops/sops-age-key.txt:/run/secrets/sops-age-key.txt
       # And finally mount the current dir to /app.
       - .:/app
 
