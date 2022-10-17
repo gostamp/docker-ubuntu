@@ -5,7 +5,7 @@
 - [x] Setup sops
 - [ ] Create secrets-\* scripts
 - [x] Setup linting/formatting
-- [ ] Container tests?
+- [x] Container tests
 - [ ] Setup GHA workflow w/ lint+test
 - [ ] Setup container registry
   - [ ] Add push step to GHA workflow

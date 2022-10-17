@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")/common.sh"
 
-current_env="${APP_ENV:?}"
+APP_ENV="${APP_ENV:?}"
+APP_TARGET="${APP_TARGET:?}"
+
 key_path="${SOPS_AGE_KEY_FILE:?}"
-config_path="/app/etc/${current_env}/config.env"
-secrets_path="/app/etc/${current_env}/secrets.yaml"
+config_path="/app/etc/${APP_ENV}/config.env"
+secrets_path="/app/etc/${APP_ENV}/secrets.yaml"
 
 # Used by the Makefile to determine whether scripts
 # need to be passed through the entrypoint.
 export RUNNING_IN_ENTRYPOINT=1
 
-# Sigh... get it together Docker for Mac :roll_eyes:
-sudo chown -R app:app /app /home/app
+if [[ "${APP_TARGET}" == "full" ]]; then
+    # Sigh... get it together Docker for Mac :roll_eyes:
+    sudo chown -R app:app \
+        /app \
+        /home/app \
+        /run/host-services/ssh-auth.sock \
+        /var/run/docker.sock
 
-/usr/local/bin/pre-commit-restore.sh
+    /app/bin/pre-commit-restore.sh
+fi
 
 # Source config.env if present
 if [ -f "${config_path}" ]; then

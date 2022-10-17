@@ -1,0 +1,108 @@
+---
+schemaVersion: 2.0.0
+
+metadataTest:
+  env:
+    - key: APP_GID
+      value: "10001"
+
+    - key: APP_UID
+      value: "10001"
+
+    - key: APP_HOME
+      value: /home/app
+
+    - key: APP_DIR
+      value: /app
+
+    - key: APP_USER
+      value: app
+
+    - key: APP_ENV
+      value: local
+
+    - key: APP_TARGET
+      value: full
+
+    - key: LANG
+      value: C.utf8
+
+    - key: RUNNING_IN_CONTAINER
+      value: "1"
+
+fileContentTests:
+  - name: /etc/sudoers.d/app
+    path: /etc/sudoers.d/app
+    expectedContents:
+      - "app ALL=\\(root\\) NOPASSWD:ALL"
+
+fileExistenceTests:
+  - name: /app/bin/command.sh
+    path: /app/bin/command.sh
+    shouldExist: true
+    permissions: -rwxr-xr-x
+    uid: 10001
+    gid: 10001
+
+  - name: /app/bin/entrypoint.sh
+    path: /app/bin/entrypoint.sh
+    shouldExist: true
+    permissions: -rwxr-xr-x
+    uid: 10001
+    gid: 10001
+
+  - name: /app/bin/pre-commit-build.sh
+    path: /app/bin/pre-commit-build.sh
+    shouldExist: true
+    permissions: -rwxr-xr-x
+    uid: 10001
+    gid: 10001
+
+  - name: /app/bin/pre-commit-restore.sh
+    path: /app/bin/pre-commit-restore.sh
+    shouldExist: true
+    permissions: -rwxr-xr-x
+    uid: 10001
+    gid: 10001
+
+  - name: /etc/sudoers.d/app
+    path: /etc/sudoers.d/app
+    shouldExist: true
+    permissions: -r--r-----
+    uid: 0
+    gid: 0
+
+  - name: /home/app/.bashrc
+    path: /home/app/.bashrc
+    shouldExist: true
+    permissions: -rw-r--r--
+    uid: 10001
+    gid: 10001
+
+  - name: /home/app/.nanorc
+    path: /home/app/.nanorc
+    shouldExist: true
+    permissions: -rw-r--r--
+    uid: 10001
+    gid: 10001
+
+  - name: /home/app/.ssh
+    path: /home/app/.ssh
+    shouldExist: true
+    permissions: drwx------
+    uid: 10001
+    gid: 10001
+
+  - name: /opt/build/git/commit-msg
+    path: /opt/build/git/commit-msg
+    shouldExist: true
+    permissions: -rwxr-xr-x
+    uid: 10001
+    gid: 10001
+
+  - name: /opt/build/git/pre-commit
+    path: /opt/build/git/pre-commit
+    shouldExist: true
+    permissions: -rwxr-xr-x
+    uid: 10001
+    gid: 10001

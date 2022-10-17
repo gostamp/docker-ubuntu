@@ -22,6 +22,7 @@ ignorePaths:
   - devcontainer.json
   - Dockerfile
   - secrets.yaml
+  - structure-test.yaml
 words:
   - buildkit
   - devcontainer

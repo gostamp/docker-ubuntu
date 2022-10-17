@@ -47,6 +47,7 @@ RUN <<EOF
         "build-essential=12.*" \
         "ca-certificates=20211016" \
         "curl=7.81.*" \
+        "docker.io=20.10.*" \
         "gh=2.4.*" \
         "git=1:2.34.*" \
         "gnupg=2.2.*" \
@@ -189,12 +190,12 @@ RUN <<EOF
 EOF
 
 COPY ./etc/dotfiles/* ${APP_HOME}/
-COPY ./bin/pre-commit-* /usr/local/bin/
+COPY ./bin ${APP_DIR}/bin
 COPY .pre-commit-config.yaml ${APP_DIR}/
 RUN <<EOF
     # Creates pre-commit hooks and stores them in /opt/build
     # so that they can be restored into .git/hooks on container start.
-    /usr/local/bin/pre-commit-build.sh
+    /app/bin/pre-commit-build.sh
 
     # Allow app user to sudo
     echo 'app ALL=(root) NOPASSWD:ALL' > /etc/sudoers.d/app
@@ -203,7 +204,11 @@ RUN <<EOF
     # Setup home dir
     mkdir -p "${APP_HOME}/.ssh"
     chmod 0700 "${APP_HOME}/.ssh"
-    chown -R "${APP_UID}:${APP_GID}" "${APP_HOME}"
+
+    chown -R "${APP_UID}:${APP_GID}" \
+        "${APP_DIR}" \
+        "${APP_HOME}" \
+        /opt/build
 EOF
 
 # Drop down to the app user
@@ -222,8 +227,17 @@ ENV APP_TARGET=${APP_TARGET} \
 #######################################################
 FROM base AS slim
 
+COPY --from=full /usr/local/bin/sops /usr/local/bin/sops
 COPY --from=full ${APP_DIR} ${APP_DIR}
 COPY --from=full ${APP_HOME} ${APP_HOME}
+
+RUN <<EOF
+    rm -Rf \
+        "${APP_DIR}/bin/pre-commit-build.sh" \
+        "${APP_DIR}/bin/pre-commit-restore.sh" \
+        "${APP_HOME}/.nanorc" \
+        "${APP_HOME}/.ssh"
+EOF
 
 USER ${APP_USER}
 
