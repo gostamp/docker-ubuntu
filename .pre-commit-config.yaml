@@ -23,7 +23,6 @@ repos:
           - json
           - json5
           - sql
-          - toml
           - ts
           - yaml
 

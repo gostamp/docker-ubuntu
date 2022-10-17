@@ -1,0 +1,99 @@
+{
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "davidanson.vscode-markdownlint",
+                "dbaeumer.vscode-eslint",
+                "editorconfig.editorconfig",
+                "esbenp.prettier-vscode",
+                "exiasr.hadolint",
+                "foxundermoon.shell-format",
+                "redhat.vscode-yaml",
+                "rohit-gohri.format-code-action",
+                "streetsidesoftware.code-spell-checker",
+                "timonwong.shellcheck"
+            ],
+            "settings": {
+                "[css]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[dockerfile]": {
+                    "editor.defaultFormatter": "foxundermoon.shell-format"
+                },
+                "[editorconfig]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[html]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[ini]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[javascript]": {
+                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[json]": {
+                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[jsonc]": {
+                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[markdown]": {
+                    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+                },
+                "[shellscript]": {
+                    "editor.defaultFormatter": "foxundermoon.shell-format"
+                },
+                "[sql]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[toml]": {
+                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "[yaml]": {
+                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": false
+                },
+                "editor.formatOnSave": true,
+                "editor.rulers": [120],
+                "eslint.nodePath": "/lib/node_modules",
+                "eslint.options": {
+                    "resolvePluginsRelativeTo": "/lib/node_modules"
+                },
+                "eslint.probe": ["javascript", "json", "jsonc", "json5", "toml", "yaml"],
+                "eslint.validate": ["javascript", "json", "jsonc", "json5", "toml", "yaml"],
+                "hadolint.hadolintPath": "/usr/local/bin/hadolint",
+                "prettier.documentSelectors": [".editorconfig", ".gitlint"],
+                "prettier.enable": true,
+                "prettier.resolveGlobalModules": true,
+                "shellcheck.customArgs": ["-x"],
+                "shellcheck.enable": true,
+                "shellformat.effectLanguages": ["shellscript", "dockerfile", "bats"],
+                "shellformat.path": "/usr/local/bin/shfmt",
+                "shellformat.useEditorConfig": true,
+                "terminal.integrated.profiles.linux": {
+                    "entrypoint-bash": {
+                        "path": "/app/bin/entrypoint.sh",
+                        "args": ["bash"]
+                    }
+                },
+                "terminal.integrated.defaultProfile.linux": "entrypoint-bash"
+            }
+        }
+    },
+    "dockerComposeFile": ["../docker-compose.yaml", "docker-compose.yaml"],
+    "name": "docker-ubuntu",
+    "remoteUser": "app",
+    "service": "app",
+    "shutdownAction": "stopCompose",
+    "workspaceFolder": "/app"
+}

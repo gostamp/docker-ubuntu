@@ -9,8 +9,8 @@
 - [ ] Setup GHA workflow w/ lint+test
 - [ ] Setup container registry
   - [ ] Add push step to GHA workflow
-- [ ] Setup devcontainer config
-  - [ ] Add settings presets for various tools
+- [x] Setup devcontainer config
+  - [x] Add settings presets for various tools
   - [ ] Copy settings to base project generator
 
 ## Tools to consider adding

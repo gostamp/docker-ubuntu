@@ -7,10 +7,10 @@ language: postgresql
 keywordCase: upper
 
 overrides:
-  - files: .gitlint
+  - files: .editorconfig
     options:
       parser: ini
 
-  - files: "*.github-issues"
+  - files: .gitlint
     options:
-      parser: json
+      parser: ini
