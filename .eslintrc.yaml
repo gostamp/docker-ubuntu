@@ -1,0 +1,35 @@
+---
+plugins:
+  - json-schema-validator
+  - jsonc
+  - toml
+  - yml
+
+extends:
+  - "eslint:recommended"
+  - "plugin:jsonc/recommended-with-json"
+  - "plugin:jsonc/prettier"
+  # Waiting on:
+  #   https://github.com/ota-meshi/eslint-plugin-json-schema-validator/issues/180
+  # - "plugin:json-schema-validator/recommended"
+  - "plugin:toml/standard"
+  - "plugin:yml/standard"
+  - "plugin:yml/prettier"
+  # Can't just use `prettier` because eslint has _opinions_
+  # about global packages :roll_eyes:
+  - /lib/node_modules/eslint-config-prettier
+
+rules:
+  yml/file-extension:
+    - error
+    - extension: yaml # disallows using `.yml`
+      caseSensitive: true
+
+ignorePatterns:
+  - node_modules
+  - secrets.yaml
+  # Eslint ignores any path starting w/ a dot by default.
+  # Undoing that so we can lint our various configs.
+  - "!.*"
+  - .cache
+  - .git

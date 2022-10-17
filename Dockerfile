@@ -73,7 +73,6 @@ RUN <<EOF
     LICENSE_VERSION="v5.0.4"
     SHFMT_VERSION="v3.5.1"
     SOPS_VERSION="v3.7.3"
-    YAMLFMT_VERSION="v0.5.0"
     YQ_VERSION="v4.28.1"
 
     ARCH="${TARGETARCH}"
@@ -123,16 +122,6 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
-    pushd /tmp > /dev/null || exit
-    tarfile="yamlfmt_${YAMLFMT_VERSION#v}_Linux_${ARCH}.tar.gz"
-    curl -fsSL "https://github.com/google/yamlfmt/releases/download/${YAMLFMT_VERSION}/${tarfile}" > "./${tarfile}"
-    curl -fsSL "https://github.com/google/yamlfmt/releases/download/${YAMLFMT_VERSION}/checksums.txt" > "./checksums.txt"
-    sha256sum --check --ignore-missing ./checksums.txt
-    tar -xzf "./${tarfile}"
-    cp ./yamlfmt /usr/local/bin/yamlfmt
-    popd > /dev/null || exit
-    rm -Rf /tmp/*
-
     # You would think this would be standardized by now :roll_eyes:.
     if [[ "${TARGETARCH}" == "amd64" ]]; then
         ARCH="x64"
@@ -162,12 +151,13 @@ RUN <<EOF
 
     chmod -R 0755 /etc/bash_completion.d
     chmod -R 0755 /usr/local/bin
-EOF
 
-RUN <<EOF
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
     apt-get install -y --no-install-recommends "nodejs=16.*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOF
+
+RUN <<EOF
     npm config set \
         "audit=false" \
         "fund=false" \
@@ -175,16 +165,25 @@ RUN <<EOF
         "update-notifier=false"
     npm install \
         "cspell@~6.12.0" \
+        "eslint@~8.25.0" \
+        "eslint-config-prettier@~8.5.0" \
+        "eslint-plugin-jsonc@~2.4.0" \
+        "eslint-plugin-json-schema-validator@~4.0.2" \
+        "eslint-plugin-toml@~0.3.1" \
+        "eslint-plugin-yml@~1.2.0" \
         "markdownlint-cli@~0.32.2" \
+        "prettier@~2.7.1" \
+        "prettier-plugin-ini@~1.1.0" \
+        "prettier-plugin-sql@~0.12.1" \
         "semantic-release@~19.0.5" \
-        "@prantlf/jsonlint@~11.7.0" \
         --global
+    # some node packages want to write cache files relative to their install path
+    chown -R "${APP_UID}:${APP_GID}" /lib/node_modules
 
     pip install \
         "commitizen~=2.35.0" \
         "gitlint~=0.17.0" \
         "pre-commit~=2.20.0" \
-        "yamllint~=1.28.0" \
         --disable-pip-version-check \
         --no-cache-dir
 EOF

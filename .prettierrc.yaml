@@ -1,0 +1,16 @@
+---
+# prettier-plugin-ini
+iniSpaceAroundEquals: true
+
+# prettier-plugin-sql
+language: postgresql
+keywordCase: upper
+
+overrides:
+  - files: .gitlint
+    options:
+      parser: ini
+
+  - files: "*.github-issues"
+    options:
+      parser: json

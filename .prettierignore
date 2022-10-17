@@ -1,0 +1,7 @@
+node_modules
+dist
+
+secrets.yaml
+
+# using `markdownlint --fix` for formatting Markdown files
+*.md

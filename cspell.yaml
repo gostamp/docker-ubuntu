@@ -12,7 +12,7 @@ enableFiletypes:
   - toml
 ignorePaths:
   - .bashrc
-  - .ecrc
+  - .ecrc.json
   - .git/
   - .gitattributes
   - .gitignore

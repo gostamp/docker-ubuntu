@@ -6,6 +6,27 @@ fail_fast: true
 repos:
   - repo: local
     hooks:
+      # https://github.com/prettier/prettier
+      - id: prettier
+        name: "Format: prettier"
+        entry: ./bin/run-in-container.sh prettier
+        args:
+          - --write
+          - --list-different
+        language: system
+        types_or:
+          - css
+          - editorconfig
+          - html
+          - ini
+          - javascript
+          - json
+          - json5
+          - sql
+          - toml
+          - ts
+          - yaml
+
       # https://github.com/mvdan/sh
       - id: shfmt
         name: "Format: shfmt"
@@ -16,16 +37,6 @@ repos:
         types_or:
           - dockerfile
           - shell
-
-      # https://github.com/google/yamlfmt
-      - id: yamlfmt
-        name: "Format: yamlfmt"
-        entry: ./bin/run-in-container.sh yamlfmt
-        args:
-          - --conf=.yamlfmt.yaml
-        language: system
-        types:
-          - yaml
 
       # https://github.com/streetsidesoftware/cspell
       - id: cspell
@@ -52,6 +63,7 @@ repos:
           - .env
         language: system
         # .env OR .env.foo OR *.env
+        # For some reason identify-cli only matches the last one as `dotenv`.
         # See: https://rubular.com/r/sWEhRn1E2ALnwI
         files: ^(\.env|\.env\.\w+|.+\.env)$
         types:
@@ -61,9 +73,27 @@ repos:
       - id: editorconfig-checker
         name: "Lint: editorconfig-checker"
         entry: ./bin/run-in-container.sh ec
+        args:
+          - --config=.ecrc.json # spell: disable-line
         language: system
         types:
           - text
+
+      # https://github.com/eslint/eslint
+      - id: eslint
+        name: "Lint: eslint"
+        entry: ./bin/run-in-container.sh eslint
+        args:
+          - --fix
+          - --quiet
+          - --resolve-plugins-relative-to=/lib/node_modules
+        language: system
+        types_or:
+          - javascript
+          - json
+          - json5
+          - toml
+          - yaml
 
       # https://github.com/zricethezav/gitleaks
       - id: gitleaks
@@ -84,16 +114,6 @@ repos:
         language: system
         types:
           - dockerfile
-
-      # https://github.com/prantlf/jsonlint
-      - id: jsonlint
-        name: "Lint: jsonlint"
-        entry: ./bin/run-in-container.sh jsonlint
-        args:
-          - --config=.jsonlint.yaml
-          - --in-place
-        language: system
-        files: ^(\.ecrc|.+\.github-issues|.+\.json)$ # spell: disable-line
 
       # https://github.com/igorshubovych/markdownlint-cli
       - id: markdownlint
@@ -117,16 +137,6 @@ repos:
         language: system
         types:
           - shell
-
-      # https://github.com/adrienverge/yamllint
-      - id: yamllint
-        name: "Lint: yamllint"
-        entry: ./bin/run-in-container.sh yamllint
-        args:
-          - --strict
-        language: system
-        types:
-          - yaml
 
   - repo: local
     hooks:

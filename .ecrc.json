@@ -5,11 +5,7 @@
     "IgnoreDefaults": false,
     "SpacesAftertabs": false,
     "NoColor": false,
-    "Exclude": [
-        "^\\.git/",
-        "Dockerfile",
-        "secrets.yaml$"
-    ],
+    "Exclude": ["^\\.git/", "Dockerfile", "secrets.yaml$"],
     "AllowedContentTypes": [],
     "PassedFiles": [],
     "Disable": {

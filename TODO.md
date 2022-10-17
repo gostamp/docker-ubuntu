@@ -3,7 +3,7 @@
 ## Tasks
 
 - [x] Setup sops
-- [ ] Create secrets-* scripts
+- [ ] Create secrets-\* scripts
 - [x] Setup linting/formatting
 - [ ] Container tests?
 - [ ] Setup GHA workflow w/ lint+test
