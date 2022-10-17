@@ -20,10 +20,17 @@ extends:
   - /lib/node_modules/eslint-config-prettier
 
 rules:
+  # Disallows using `.yml` file extension
   yml/file-extension:
     - error
-    - extension: yaml # disallows using `.yml`
+    - extension: yaml
       caseSensitive: true
+
+overrides:
+  # Allows comments in devcontainer.json
+  - files: [devcontainer.json]
+    rules:
+      jsonc/no-comments: off
 
 ignorePatterns:
   - node_modules

@@ -13,6 +13,11 @@
                 "streetsidesoftware.code-spell-checker",
                 "timonwong.shellcheck"
             ],
+            /*
+             * Note: These are default settings used when _creating_ new devcontainers.
+             *       To update settings post-create you must use the settings editor:
+             *       https://code.visualstudio.com/docs/remote/containers#_container-specific-settings
+             **/
             "settings": {
                 "[css]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -64,6 +69,7 @@
                     "editor.formatOnSave": false
                 },
                 "editor.formatOnSave": true,
+                // Remove once this lands: https://github.com/editorconfig/editorconfig-vscode/issues/272
                 "editor.rulers": [120],
                 "eslint.nodePath": "/lib/node_modules",
                 "eslint.options": {
@@ -73,7 +79,6 @@
                 "eslint.validate": ["javascript", "json", "jsonc", "json5", "toml", "yaml"],
                 "hadolint.hadolintPath": "/usr/local/bin/hadolint",
                 "prettier.documentSelectors": [".editorconfig", ".gitlint"],
-                "prettier.enable": true,
                 "prettier.resolveGlobalModules": true,
                 "shellcheck.customArgs": ["-x"],
                 "shellcheck.enable": true,
