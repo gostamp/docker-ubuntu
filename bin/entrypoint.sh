@@ -17,8 +17,7 @@ if [[ "${APP_TARGET}" == "full" ]]; then
     sudo chown -R app:app \
         /app \
         /home/app \
-        /run/host-services/ssh-auth.sock \
-        /var/run/docker.sock
+        /run/host-services/ssh-auth.sock
 
     /app/bin/pre-commit-restore.sh
 fi
