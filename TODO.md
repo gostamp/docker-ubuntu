@@ -26,6 +26,13 @@
 - <https://github.com/docker-slim/docker-slim>
 - <https://github.com/goodwithtech/dockle/>
 
+- <https://github.com/sigstore/cosign>
+- <https://kyverno.io/docs/writing-policies/verify-images/>
+
+### Python
+
+- <https://github.com/pypa/pip-audit>
+
 ### SQL
 
 - <https://github.com/sql-formatter-org/sql-formatter>
@@ -44,3 +51,12 @@
 - <https://github.com/trufflesecurity/trufflehog>
 - <https://github.com/returntocorp/semgrep>
 - <https://github.com/microsoft/DevSkim>
+
+- <https://github.com/anchore/syft>
+- <https://github.com/anchore/grype>
+- <https://github.com/aquasecurity/trivy>
+  - <https://marketplace.visualstudio.com/items?itemName=AquaSecurityOfficial.trivy-vulnerability-scanner>
+
+- <https://github.com/ossf/allstar>
+- <https://github.com/ossf/scorecard>
+  - <https://github.com/ossf/scorecard-action>
