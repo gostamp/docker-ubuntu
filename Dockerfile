@@ -4,18 +4,8 @@
 #######################################################
 FROM ubuntu:22.04 AS base
 
-ARG APP_GID
-ARG APP_UID
-ARG APP_TARGET
-
-LABEL org.opencontainers.image.description="Base docker image for GoStamp devcontainers."
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.source="https://github.com/gostamp/docker-ubuntu"
-LABEL org.opencontainers.image.title="Ubuntu"
-LABEL org.opencontainers.image.vendor="GoStamp"
-
-ENV APP_GID="${APP_GID:-10001}" \
-    APP_UID="${APP_UID:-10001}" \
+ENV APP_GID="10001" \
+    APP_UID="10001" \
     APP_HOME="/home/app" \
     APP_DIR="/app" \
     APP_USER="app" \
@@ -69,15 +59,13 @@ RUN <<EOF
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
     # non-packaged dependencies
-    DOTENV_LINTER_VERSION="v3.2.0"
-    EC_VERSION="2.6.0"
-    GITLEAKS_VERSION="v8.15.0"
-    GUM_VERSION="v0.7.0"
-    HADOLINT_VERSION="v2.10.0"
-    HUGO_VERSION="v0.104.3"
-    LICENSE_VERSION="v5.0.4"
-    SHFMT_VERSION="v3.5.1"
+    GITLEAKS_VERSION="v8.16.0"
+    GUM_VERSION="v0.9.0"
+    HADOLINT_VERSION="v2.12.0"
+    HUGO_VERSION="v0.110.0"
+    SHFMT_VERSION="v3.6.0"
     SOPS_VERSION="v3.7.3"
+    STYLIST_VERSION="v0.1.0"
 
     ARCH="${TARGETARCH}"
 
@@ -85,16 +73,11 @@ RUN <<EOF
     # so turn on echoing so it doesn't look like the build is stuck.
     set -x
 
-    curl -fsSL "https://github.com/nishanths/license/releases/download/${LICENSE_VERSION}/license-${LICENSE_VERSION}-linux-${ARCH}" > /usr/local/bin/license
     curl -fsSL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_${ARCH}" > /usr/local/bin/shfmt
     curl -fsSL "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${ARCH}" > /usr/local/bin/sops
-
-    pushd /tmp > /dev/null || exit
-    curl -fsSL "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${EC_VERSION}/ec-linux-${ARCH}.tar.gz" > "./ec-linux-${ARCH}.tar.gz"
-    tar -xzf "./ec-linux-${ARCH}.tar.gz"
-    cp ./bin/ec-linux-${ARCH} /usr/local/bin/ec
-    popd > /dev/null || exit
-    rm -Rf /tmp/*
+    curl -fsSL "https://github.com/twelvelabs/stylist/releases/download/${STYLIST_VERSION}/stylist_${STYLIST_VERSION#v}_linux_${ARCH}" > /usr/local/bin/stylist
+    chmod 0755 /usr/local/bin/stylist
+    /usr/local/bin/stylist completion bash > /etc/bash_completion.d/stylist
 
     pushd /tmp > /dev/null || exit
     tarfile="hugo_extended_${HUGO_VERSION#v}_linux-${ARCH}.tar.gz"
@@ -114,7 +97,7 @@ RUN <<EOF
     curl -fsSL "https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-Linux-${ARCH}" > /usr/local/bin/hadolint
 
     pushd /tmp > /dev/null || exit
-    tarfile="gum_${GUM_VERSION#v}_linux_${ARCH}.tar.gz"
+    tarfile="gum_${GUM_VERSION#v}_Linux_${ARCH}.tar.gz"
     curl -fsSL "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${tarfile}" > "./${tarfile}"
     curl -fsSL "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/checksums.txt" > ./checksums.txt
     sha256sum --check --ignore-missing ./checksums.txt
@@ -137,20 +120,6 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
-    # oh, ffs... :dissapointed:.
-    if [[ "${TARGETARCH}" == "amd64" ]]; then
-        ARCH="x86_64"
-    elif [[ "${TARGETARCH}" == "arm64" ]]; then
-        ARCH="aarch64"
-    fi
-    pushd /tmp > /dev/null || exit
-    tarfile="dotenv-linter-linux-${ARCH}.tar.gz"
-    curl -fsSL "https://github.com/dotenv-linter/dotenv-linter/releases/download/${DOTENV_LINTER_VERSION}/${tarfile}" > "./${tarfile}"
-    tar -xzf "./${tarfile}"
-    cp ./dotenv-linter /usr/local/bin/dotenv-linter
-    popd > /dev/null || exit
-    rm -Rf /tmp/*
-
     chmod -R 0755 /etc/bash_completion.d
     chmod -R 0755 /usr/local/bin
 
@@ -166,38 +135,25 @@ RUN <<EOF
         "loglevel=warn" \
         "update-notifier=false"
     npm install \
-        "cspell@~6.12.0" \
-        "eslint@~8.25.0" \
-        "eslint-config-prettier@~8.5.0" \
-        "eslint-plugin-jsonc@~2.4.0" \
-        "eslint-plugin-json-schema-validator@~4.0.2" \
-        "eslint-plugin-toml@~0.3.1" \
-        "eslint-plugin-yml@~1.2.0" \
-        "markdownlint-cli@~0.32.2" \
-        "prettier@~2.7.1" \
-        "prettier-plugin-ini@~1.1.0" \
-        "prettier-plugin-sql@~0.12.1" \
-        "semantic-release@~19.0.5" \
+        "commitizen@~4.3.0" \
+        "cz-conventional-changelog@~3.3.0" \
+        "cspell@~6.26.3" \
+        "markdownlint-cli@~0.33.0" \
         --global
     # some node packages want to write cache files relative to their install path
     chown -R "${APP_UID}:${APP_GID}" /lib/node_modules
+    # configure commitizen
+    echo '{ "path": "cz-conventional-changelog" }' > "${APP_HOME}/.czrc"
 
     pip install \
-        "commitizen~=2.35.0" \
-        "gitlint~=0.17.0" \
-        "pre-commit~=2.20.0" \
+        "gitlint~=0.18.0" \
         --disable-pip-version-check \
         --no-cache-dir
 EOF
 
 COPY ./etc/dotfiles/* ${APP_HOME}/
 COPY ./bin ${APP_DIR}/bin
-COPY .pre-commit-config.yaml ${APP_DIR}/
 RUN <<EOF
-    # Creates pre-commit hooks and stores them in /opt/build
-    # so that they can be restored into .git/hooks on container start.
-    /app/bin/pre-commit-build.sh
-
     # Allow app user to sudo
     echo "${APP_USER} ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/${APP_USER}"
     chmod 0440 "/etc/sudoers.d/${APP_USER}"
@@ -205,11 +161,6 @@ RUN <<EOF
     # Setup home dir
     mkdir -p "${APP_HOME}/.ssh"
     chmod 0700 "${APP_HOME}/.ssh"
-
-    chown -R "${APP_UID}:${APP_GID}" \
-        "${APP_DIR}" \
-        "${APP_HOME}" \
-        /opt/build
 EOF
 
 # Drop down to the app user
@@ -217,6 +168,7 @@ USER ${APP_USER}
 
 # Keep these lines as low as possible to limit the impact on the build cache.
 # See: https://docs.docker.com/engine/reference/builder/#impact-on-build-caching
+ARG APP_TARGET
 ENV APP_TARGET="${APP_TARGET:-full}" \
     APP_ENV=local
 
@@ -233,8 +185,6 @@ COPY --from=full ${APP_HOME} ${APP_HOME}
 
 RUN <<EOF
     rm -Rf \
-        "${APP_DIR}/bin/pre-commit-build.sh" \
-        "${APP_DIR}/bin/pre-commit-restore.sh" \
         "${APP_HOME}/.nanorc" \
         "${APP_HOME}/.ssh"
 EOF

@@ -17,8 +17,6 @@ services:
       - APP_TAG
       - APP_TARGET
       - APP_USER
-      - DEBUG
-      - SOPS_AGE_KEY_FILE=/run/secrets/sops-age-key.txt
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
     hostname: ${APP_NAME}-${APP_TARGET}
     init: true
@@ -29,11 +27,6 @@ services:
       - type: bind
         source: /run/host-services/ssh-auth.sock
         target: /run/host-services/ssh-auth.sock
-      # Allow the container to talk to the docker daemon on the host OS
-      # so we can use container-structure-test.
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
       # Persist home dir content (bash history, caches, etc).
       - home-data:${APP_HOME}
       # Pull in the user's gitconfig.
@@ -41,7 +34,7 @@ services:
       # Pull in the users ssh keys for git signing
       - ~/.ssh:${APP_HOME}/.ssh
       # Pull in the sops encryption key.
-      - ~/.sops/sops-age-key.txt:/run/secrets/sops-age-key.txt
+      - ~/.sops/sops-age-key.txt:${APP_HOME}/.config/sops/age/keys.txt
       # And finally mount the current dir to /app.
       - .:/app
 

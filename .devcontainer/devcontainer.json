@@ -2,14 +2,17 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "bierner.github-markdown-preview",
+                "cschleiden.vscode-github-actions",
                 "davidanson.vscode-markdownlint",
-                "dbaeumer.vscode-eslint",
+                "eamodio.gitlens",
                 "editorconfig.editorconfig",
-                "esbenp.prettier-vscode",
                 "exiasr.hadolint",
                 "foxundermoon.shell-format",
+                "GitHub.vscode-pull-request-github",
+                "ms-azuretools.vscode-docker",
+                "MS-SarifVSCode.sarif-viewer",
                 "redhat.vscode-yaml",
-                "rohit-gohri.format-code-action",
                 "streetsidesoftware.code-spell-checker",
                 "timonwong.shellcheck"
             ],
@@ -19,83 +22,36 @@
              *       https://code.visualstudio.com/docs/remote/containers#_container-specific-settings
              **/
             "settings": {
-                "[css]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[dockerfile]": {
-                    "editor.defaultFormatter": "foxundermoon.shell-format"
-                },
-                "[editorconfig]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[html]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[ini]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[javascript]": {
-                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": false
-                },
-                "[json]": {
-                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": false
-                },
-                "[jsonc]": {
-                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": false
-                },
-                "[markdown]": {
-                    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
-                },
-                "[shellscript]": {
-                    "editor.defaultFormatter": "foxundermoon.shell-format"
-                },
-                "[sql]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[toml]": {
-                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": false
-                },
-                "[yaml]": {
-                    "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": false
-                },
                 "editor.formatOnSave": true,
                 // Remove once this lands: https://github.com/editorconfig/editorconfig-vscode/issues/272
-                "editor.rulers": [120],
-                "eslint.nodePath": "/lib/node_modules",
-                "eslint.options": {
-                    "resolvePluginsRelativeTo": "/lib/node_modules"
-                },
-                "eslint.probe": ["javascript", "json", "jsonc", "json5", "toml", "yaml"],
-                "eslint.validate": ["javascript", "json", "jsonc", "json5", "toml", "yaml"],
+                "editor.rulers": [
+                    120
+                ],
                 "hadolint.hadolintPath": "/usr/local/bin/hadolint",
-                "prettier.documentSelectors": [".editorconfig", ".gitlint"],
-                "prettier.resolveGlobalModules": true,
-                "shellcheck.customArgs": ["-x"],
+                "sarif-viewer.explorer.openWhenNoResults": false,
+                "sarif-viewer.connectToGithubCodeScanning": "on",
+                "shellcheck.customArgs": [
+                    "-x"
+                ],
                 "shellcheck.enable": true,
-                "shellformat.effectLanguages": ["shellscript", "dockerfile", "bats"],
                 "shellformat.path": "/usr/local/bin/shfmt",
                 "shellformat.useEditorConfig": true,
                 "terminal.integrated.profiles.linux": {
                     "entrypoint-bash": {
                         "path": "/app/bin/entrypoint.sh",
-                        "args": ["bash"]
+                        "args": [
+                            "bash"
+                        ]
                     }
                 },
                 "terminal.integrated.defaultProfile.linux": "entrypoint-bash"
             }
         }
     },
-    "dockerComposeFile": ["../docker-compose.yaml", "docker-compose.yaml"],
+    "dockerComposeFile": [
+        "../docker-compose.yml",
+        "docker-compose.yml"
+    ],
     "name": "docker-ubuntu",
     "remoteUser": "app",
     "service": "app",

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/common.sh"
+set -o errexit -o errtrace -o nounset -o pipefail
 
 # Replace this with your application command
 echo "Executing ./bin/command.sh"

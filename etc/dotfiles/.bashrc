@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
-# Color prompt: "user@host(env):dir"
-export PS1="\[\033[01;32m\]\u@\h(\$APP_ENV)\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+# Color prompt: "user@host(env):dir $ "
+export PS1="\[\033[01;32m\]\u@\h(\$APP_ENV)\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$ "
 export TERM=xterm-256color
 
 # A proper `ls` :)
