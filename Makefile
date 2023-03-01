@@ -16,7 +16,12 @@ ifeq ($(CI),true)
     export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
     # Ensure file exists for another compose bind mount.
     $(shell touch ~/.gitconfig)
+    # Customize user so FS permissions are correct.
     export APP_USER := $(shell id -u):$(shell id -g)
+    # Can only get the username from an env var in CI.
+    export APP_DOCKER_USERNAME ?= $(GITHUB_ACTOR)
+else
+    export APP_DOCKER_USERNAME ?= $(shell gh api /user --jq .login)
 endif
 
 # Always use buildkit
@@ -24,8 +29,7 @@ export DOCKER_BUILDKIT := 1
 export GITHUB_TOKEN ?= $(shell gh auth token)
 
 export APP_DOCKER_IMAGE := ${APP_DOCKER_REGISTRY}/${APP_OWNER}/${APP_NAME}-${APP_TARGET}
-export APP_DOCKER_USERNAME ?= $(shell gh api /user --jq .login)
-export APP_DOCKER_PASSWORD ?= ${GITHUB_TOKEN}
+export APP_DOCKER_PASSWORD ?= $(GITHUB_TOKEN)
 
 # Support running make commands from both host and container.
 ifneq ($(RUNNING_IN_CONTAINER),1)
