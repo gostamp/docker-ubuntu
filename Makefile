@@ -13,6 +13,7 @@ export DOCKER_BUILDKIT := 1
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 APP_SERVICE := app
+DOCKER_IMAGE := ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}
 
 # Docker compose runs interactively by default, but git hooks run non-interactively.
 # Docker will error if there's a mismatch.
@@ -26,6 +27,13 @@ else ifneq ($(RUNNING_IN_ENTRYPOINT),1)
 run = /app/bin/entrypoint.sh
 else
 run =
+endif
+
+# In CI we need to create a dummy placeholder for the socket file
+# that the compose file is attempting to bind mount.
+ifeq ($(CI),true)
+$(shell touch .dummy)
+export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
 endif
 
 
@@ -74,8 +82,6 @@ commit-msg:
 
 
 ##@ Docker
-
-DOCKER_IMAGE := ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}
 
 .PHONY: docker-build
 docker-build: ## Build the docker image

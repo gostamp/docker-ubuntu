@@ -14,10 +14,11 @@ export RUNNING_IN_ENTRYPOINT=1
 
 if [ "${APP_TARGET}" == "full" ]; then
     # Sigh... get it together Docker for Mac :roll_eyes:
+    sudo mkdir -p /run/host-services
     sudo chown -R app:app \
         /app \
         /home/app \
-        /run/host-services/ssh-auth.sock \
+        /run/host-services \
         /run/docker.sock
 
     # Ensure git hooks are installed.

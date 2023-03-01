@@ -26,8 +26,8 @@ services:
       # Forward the SSH agent from the host OS so we can use git, ssh, etc.
       # See https://docs.docker.com/desktop/networking/#ssh-agent-forwarding
       - type: bind
-        source: /run/host-services/ssh-auth.sock
-        target: /run/host-services/ssh-auth.sock
+        source: ${DOCKER_DESKTOP_SOCK:-/run/host-services/ssh-auth.sock}
+        target: ${DOCKER_DESKTOP_SOCK:-/run/host-services/ssh-auth.sock}
       # Allow the container to talk to the docker daemon on the host OS.
       - type: bind
         source: /var/run/docker.sock
