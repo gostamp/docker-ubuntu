@@ -16,7 +16,7 @@ ifeq ($(CI),true)
     export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
     # Ensure file exists for another compose bind mount.
     $(shell touch ~/.gitconfig)
-    $(shell git config --global --add safe.directory /app)
+    export APP_USER := $(shell id -u):$(shell id -g)
 endif
 
 # Always use buildkit
