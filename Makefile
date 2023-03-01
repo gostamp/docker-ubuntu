@@ -35,6 +35,8 @@ ifeq ($(CI),true)
     # that the compose file is attempting to bind mount.
     $(shell touch .dummy)
     export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
+    # Ensure file exists for another compose bind mount.
+    $(shell touch ~/.gitconfig)
 endif
 
 
