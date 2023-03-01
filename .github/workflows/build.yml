@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     permissions:
       contents: write # to create releases
       packages: read
@@ -48,5 +51,3 @@ jobs:
       - name: Release
         if: github.ref == 'refs/heads/main'
         run: make release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

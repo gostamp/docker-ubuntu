@@ -18,5 +18,4 @@ if [[ "${CURRENT_VERSION}" == "${NEXT_VERSION}" ]]; then
 fi
 echo "Next version:    ${NEXT_VERSION}"
 
-GITHUB_TOKEN="${GITHUB_TOKEN?}"
 gh release create "${NEXT_VERSION}" --generate-notes

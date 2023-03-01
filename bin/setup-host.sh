@@ -9,6 +9,7 @@ fi
 # Ensure host dependencies are installed.
 dependencies=(
     "docker"
+    "gh"
     "make"
 )
 for dependency in "${dependencies[@]}"; do

@@ -3,7 +3,7 @@ version: "3.7"
 
 services:
   app:
-    image: ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}:${APP_TAG}
+    image: ${APP_DOCKER_REGISTRY}/${APP_OWNER}/${APP_NAME}-${APP_TARGET}
     build:
       context: .
       target: ${APP_TARGET}
@@ -11,13 +11,19 @@ services:
         # Also set as env var in the built image
         APP_TARGET: ${APP_TARGET}
     environment:
+      - APP_DOCKER_REGISTRY
+      - APP_DOCKER_USERNAME
+      - APP_DOCKER_PASSWORD
+      - APP_DOCKER_IMAGE
       - APP_ENV
       - APP_NAME
-      - APP_REGISTRY
+      - APP_OWNER
       - APP_TAG
       - APP_TARGET
       - APP_USER
       - CI
+      - GITHUB_REF_NAME
+      - GITHUB_SHA
       - GITHUB_TOKEN
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
     hostname: ${APP_NAME}-${APP_TARGET}

@@ -1,3 +1,6 @@
+.DEFAULT_GOAL := help
+SHELL := /bin/bash
+
 # Lazily create and "source" the .env file
 # See: https://unix.stackexchange.com/a/235254
 ifeq (,$(wildcard .env))
@@ -7,33 +10,31 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 # Always use buildkit
-export COMPOSE_DOCKER_CLI_BUILD := 1
 export DOCKER_BUILDKIT := 1
+export GITHUB_TOKEN ?= $(shell gh auth token)
 
-.DEFAULT_GOAL := help
-SHELL := /bin/bash
-APP_SERVICE := app
-DOCKER_IMAGE := ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}
-
-# Docker compose runs interactively by default, but git hooks run non-interactively.
-# Docker will error if there's a mismatch.
-# `-t 0` returns true if file descriptor 0 is a terminal (https://stackoverflow.com/a/911213/1582608).
-TTY := $(shell [ ! -t 0 ] && echo '--no-TTY ')
+export APP_DOCKER_IMAGE := ${APP_DOCKER_REGISTRY}/${APP_OWNER}/${APP_NAME}-${APP_TARGET}
+export APP_DOCKER_USERNAME ?= $(shell gh api /user --jq .login)
+export APP_DOCKER_PASSWORD ?= ${GITHUB_TOKEN}
 
 # Support running make commands from both host and container.
 ifneq ($(RUNNING_IN_CONTAINER),1)
-run = docker compose run --rm $(TTY)$(APP_SERVICE)
+    # Docker compose runs interactively by default, but git hooks run non-interactively.
+    # Docker will error if there's a mismatch.
+    # `-t 0` returns true if file descriptor 0 is a terminal (https://stackoverflow.com/a/911213/1582608).
+    run_tty := $(shell [ ! -t 0 ] && echo '--no-TTY ')
+    run = docker compose run --rm $(run_tty)app
 else ifneq ($(RUNNING_IN_ENTRYPOINT),1)
-run = /app/bin/entrypoint.sh
+    run = /app/bin/entrypoint.sh
 else
-run =
+    run =
 endif
 
-# In CI we need to create a dummy placeholder for the socket file
-# that the compose file is attempting to bind mount.
 ifeq ($(CI),true)
-$(shell touch .dummy)
-export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
+    # In CI we need to create a dummy placeholder for the socket file
+    # that the compose file is attempting to bind mount.
+    $(shell touch .dummy)
+    export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
 endif
 
 
@@ -86,7 +87,7 @@ commit-msg:
 .PHONY: docker-build
 docker-build: ## Build the docker image
 ifeq ($(CI),true)
-	docker buildx bake --load --set app.cache-from=type=gha --set app.cache-from=type=registry,ref=$(DOCKER_IMAGE):buildcache --set app.cache-to=type=gha app
+	docker buildx bake --load --set app.cache-from=type=gha --set app.cache-from=type=registry,ref=$(APP_DOCKER_IMAGE):buildcache --set app.cache-to=type=gha app
 else
 	docker compose build app
 endif
@@ -94,14 +95,6 @@ endif
 .PHONY: docker-inspect
 docker-inspect:
 	docker inspect $$(docker compose config --images app)
-
-.PHONY: docker-push
-docker-push: ## Push the docker image to the registry
-ifeq ($(CI),true)
-	docker buildx bake --print --set app.cache-from=type=registry,ref=$(DOCKER_IMAGE):buildcache --set app.cache-to=type=registry,ref=$(DOCKER_IMAGE):buildcache,mode=max --set app.platform=linux/amd64 --set app.platform=linux/arm64 app
-else
-	docker compose push app
-endif
 
 .PHONY: docker-clean
 docker-clean: ## Cleanup containers and persistent volumes
