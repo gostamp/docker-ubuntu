@@ -7,16 +7,7 @@ if [[ "${CURRENT_BRANCH}" != "main" ]]; then
     exit 0
 fi
 
-# The github CLI will complain if the repo isn't owned
-# by the current user (for example, in CI).
-repo_owner_uid=$(stat -c '%u' "${APP_DIR}")
-current_user_uid=$(id -u)
-if [[ "${repo_owner_uid}" != "${current_user_uid}" ]]; then
-    git config --global --add safe.directory /app
-fi
-
 git fetch --all --tags
-
 CURRENT_VERSION=$(svu current)
 NEXT_VERSION=$(svu next)
 

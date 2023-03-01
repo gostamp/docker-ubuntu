@@ -4,10 +4,20 @@ SHELL := /bin/bash
 # Lazily create and "source" the .env file
 # See: https://unix.stackexchange.com/a/235254
 ifeq (,$(wildcard .env))
-$(shell cp .env.example .env)
+    $(shell cp .env.example .env)
 endif
 include .env
 export $(shell sed 's/=.*//' .env)
+
+ifeq ($(CI),true)
+    # In CI we need to create a dummy placeholder for the socket file
+    # that the compose file is attempting to bind mount.
+    $(shell touch .dummy)
+    export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
+    # Ensure file exists for another compose bind mount.
+    $(shell touch ~/.gitconfig)
+    $(shell git config --global --add safe.directory /app)
+endif
 
 # Always use buildkit
 export DOCKER_BUILDKIT := 1
@@ -28,15 +38,6 @@ else ifneq ($(RUNNING_IN_ENTRYPOINT),1)
     run = /app/bin/entrypoint.sh
 else
     run =
-endif
-
-ifeq ($(CI),true)
-    # In CI we need to create a dummy placeholder for the socket file
-    # that the compose file is attempting to bind mount.
-    $(shell touch .dummy)
-    export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
-    # Ensure file exists for another compose bind mount.
-    $(shell touch ~/.gitconfig)
 endif
 
 
