@@ -17,11 +17,11 @@ APP_SERVICE := app
 # Docker compose runs interactively by default, but git hooks run non-interactively.
 # Docker will error if there's a mismatch.
 # `-t 0` returns true if file descriptor 0 is a terminal (https://stackoverflow.com/a/911213/1582608).
-TTY := $(shell [ ! -t 0 ] && echo '--no-TTY')
+TTY := $(shell [ ! -t 0 ] && echo '--no-TTY ')
 
 # Support running make commands from both host and container.
 ifneq ($(RUNNING_IN_CONTAINER),1)
-run = docker compose run $(TTY) --rm $(APP_SERVICE)
+run = docker compose run --rm $(TTY)$(APP_SERVICE)
 else ifneq ($(RUNNING_IN_ENTRYPOINT),1)
 run = /app/bin/entrypoint.sh
 else
@@ -42,6 +42,14 @@ format: ## Format files
 .PHONY: run
 run: ## Run the container
 	$(run) ./bin/command.sh
+
+.PHONY: release
+release: ## Create a new release tag
+	$(run) ./bin/release.sh
+
+.PHONY: publish
+publish: ## Publish a new release
+	$(run) ./bin/publish.sh
 
 .PHONY: shell
 shell: ## Shell into the container
@@ -67,17 +75,27 @@ commit-msg:
 
 ##@ Docker
 
+DOCKER_IMAGE := ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}
+
 .PHONY: docker-build
 docker-build: ## Build the docker image
+ifeq ($(CI),true)
+	docker buildx bake --load --set app.cache-from=type=gha --set app.cache-from=type=registry,ref=$(DOCKER_IMAGE):buildcache --set app.cache-to=type=gha app
+else
 	docker compose build app
+endif
 
-.PHONY: docker-pull
-docker-pull: ## Pull the docker image from the registry
-	docker compose pull app
+.PHONY: docker-inspect
+docker-inspect:
+	docker inspect $$(docker compose config --images app)
 
 .PHONY: docker-push
 docker-push: ## Push the docker image to the registry
+ifeq ($(CI),true)
+	docker buildx bake --print --set app.cache-from=type=registry,ref=$(DOCKER_IMAGE):buildcache --set app.cache-to=type=registry,ref=$(DOCKER_IMAGE):buildcache,mode=max --set app.platform=linux/amd64 --set app.platform=linux/arm64 app
+else
 	docker compose push app
+endif
 
 .PHONY: docker-clean
 docker-clean: ## Cleanup containers and persistent volumes

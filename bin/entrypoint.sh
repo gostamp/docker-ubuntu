@@ -17,7 +17,8 @@ if [ "${APP_TARGET}" == "full" ]; then
     sudo chown -R app:app \
         /app \
         /home/app \
-        /run/host-services/ssh-auth.sock
+        /run/host-services/ssh-auth.sock \
+        /run/docker.sock
 
     # Ensure git hooks are installed.
     mkdir -p .git/hooks && rm -Rf .git/hooks/*

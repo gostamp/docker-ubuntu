@@ -1,0 +1,46 @@
+name: build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # pin@v3.3.0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # pin@v2.1.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f03ac48505955848960e80bbb68046aa35c7b9e7 # pin@v2.4.1
+
+      - name: Build
+        run: make docker-build
+
+      - name: Inspect
+        run: make docker-inspect
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
+
+      - name: Release
+        if: github.ref == 'refs/heads/main'
+        run: make release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

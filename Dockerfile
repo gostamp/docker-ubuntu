@@ -14,8 +14,8 @@ ENV APP_GID="10001" \
     LC_ALL="C.utf8" \
     RUNNING_IN_CONTAINER=1
 
-# Create app user and /app dir
 RUN <<EOF
+    # Create app user and /app dir
     groupadd --gid "${APP_GID}" "${APP_USER}"
     useradd --gid "${APP_GID}" --uid "${APP_UID}" \
             --shell /bin/bash --create-home --no-log-init "${APP_USER}"
@@ -40,6 +40,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-o", "errexit", "-c"]
 
 ARG TARGETARCH
 RUN <<EOF
+    # Install OS packages
     apt-get update
     apt-get install -y --no-install-recommends \
         "age=1.0.*" \
@@ -48,7 +49,9 @@ RUN <<EOF
         "ca-certificates=20211016" \
         "curl=7.81.*" \
         "git=1:2.34.*" \
+        "gnupg=2.2.27-*" \
         "jq=1.6-*" \
+        "lsb-release=11.1.*" \
         "nano=6.2-*" \
         "openssh-client=1:8.9p1-*" \
         "python3=3.10.*" \
@@ -56,9 +59,24 @@ RUN <<EOF
         "shellcheck=0.8.*" \
         "sudo=1.9.*" \
         "tree=2.0.*"
+    # add docker package repo
+    mkdir -p /etc/apt/keyrings && chmod 0755 /etc/apt/keyrings
+    curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+    # install docker
+    apt-get update
+    # TODO: pin versions
+    apt-get install -y --no-install-recommends \
+        "docker-ce-cli=5:23.0.1-*" \
+        "docker-buildx-plugin=0.10.2-*" \
+        "docker-compose-plugin=2.16.0-*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOF
 
-    # non-packaged dependencies
+RUN <<EOF
+    # Download and install external packages
+    set -x
+    GH_VERSION="v2.23.0"
     GITLEAKS_VERSION="v8.16.0"
     GUM_VERSION="v0.9.0"
     HADOLINT_VERSION="v2.12.0"
@@ -66,18 +84,26 @@ RUN <<EOF
     SHFMT_VERSION="v3.6.0"
     SOPS_VERSION="v3.7.3"
     STYLIST_VERSION="v0.1.0"
+    SVU_VERSION="v1.9.0"
 
     ARCH="${TARGETARCH}"
-
-    # None of the following prints anything to stdout,
-    # so turn on echoing so it doesn't look like the build is stuck.
-    set -x
 
     curl -fsSL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_${ARCH}" > /usr/local/bin/shfmt
     curl -fsSL "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${ARCH}" > /usr/local/bin/sops
     curl -fsSL "https://github.com/twelvelabs/stylist/releases/download/${STYLIST_VERSION}/stylist_${STYLIST_VERSION#v}_linux_${ARCH}" > /usr/local/bin/stylist
     chmod 0755 /usr/local/bin/stylist
     /usr/local/bin/stylist completion bash > /etc/bash_completion.d/stylist
+
+    pushd /tmp > /dev/null || exit
+    tarfile="gh_${GH_VERSION#v}_linux_${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/cli/cli/releases/download/${GH_VERSION}/${tarfile}" > "./${tarfile}"
+    curl -fsSL "https://github.com/cli/cli/releases/download/${GH_VERSION}/gh_${GH_VERSION#v}_checksums.txt" > ./checksums.txt
+    sha256sum --check --ignore-missing ./checksums.txt
+    tar -xzf "./${tarfile}"
+    cp "./${tarfile%.tar.gz}/bin/gh" /usr/local/bin/gh
+    /usr/local/bin/gh completion --shell bash > /etc/bash_completion.d/gh
+    popd > /dev/null || exit
+    rm -Rf /tmp/*
 
     pushd /tmp > /dev/null || exit
     tarfile="hugo_extended_${HUGO_VERSION#v}_linux-${ARCH}.tar.gz"
@@ -87,6 +113,16 @@ RUN <<EOF
     tar -xzf "./${tarfile}"
     ./hugo completion bash > /etc/bash_completion.d/hugo
     cp ./hugo /usr/local/bin/hugo
+    popd > /dev/null || exit
+    rm -Rf /tmp/*
+
+    pushd /tmp > /dev/null || exit
+    tarfile="svu_${SVU_VERSION#v}_linux_${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/${tarfile}" > "./${tarfile}"
+    curl -fsSL "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/checksums.txt" > ./checksums.txt
+    sha256sum --check --ignore-missing ./checksums.txt
+    tar -xzf "./${tarfile}"
+    cp ./svu /usr/local/bin/svu
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
@@ -122,13 +158,17 @@ RUN <<EOF
 
     chmod -R 0755 /etc/bash_completion.d
     chmod -R 0755 /usr/local/bin
+EOF
 
+RUN <<EOF
+    # Install Node
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
     apt-get install -y --no-install-recommends "nodejs=16.*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 EOF
 
 RUN <<EOF
+    # Install Node and Python packages
     npm config set \
         "audit=false" \
         "fund=false" \

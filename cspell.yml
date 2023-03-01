@@ -1,4 +1,3 @@
----
 version: "0.2"
 language: en
 dictionaries:
@@ -23,7 +22,9 @@ ignorePaths:
   - Dockerfile
   - secrets.yml
 words:
+  - buildcache
   - buildkit
+  - buildx
   - commitizen
   - devcontainer
   - devcontainers
