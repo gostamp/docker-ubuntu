@@ -36,7 +36,11 @@ if [[ -f "${config_path}" ]]; then
 fi
 
 # Use sops if both secrets.yml and sops-age-key.txt are present.
-if [[ -f "${secrets_path}" ]] && [[ -s "${key_path}" ]]; then
+if
+    [[ -f "${secrets_path}" ]] && # exists and is file
+        [[ -f "${key_path}" ]] && # exists and is file
+        [[ -s "${key_path}" ]]    # exists and has a size greater than zero
+then
     sops exec-env "${secrets_path}" "$*"
 else
     exec "$@"
