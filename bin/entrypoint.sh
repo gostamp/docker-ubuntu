@@ -12,7 +12,7 @@ secrets_path="/app/etc/${APP_ENV}/secrets.yml"
 # need to be passed through the entrypoint.
 export RUNNING_IN_ENTRYPOINT=1
 
-if [ "${APP_TARGET}" == "full" ]; then
+if [ "${APP_TARGET}" == "full" ] && [ "${CI:-}" != "true" ]; then
     # Sigh... get it together Docker for Mac :roll_eyes:
     sudo mkdir -p /run/host-services
     sudo chown -R app:app \
