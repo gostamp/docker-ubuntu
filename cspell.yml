@@ -1,30 +1,31 @@
----
 version: "0.2"
 language: en
 dictionaries:
   - bash
-  - cpp
-  - python
-  - python-common
 enableFiletypes:
+  - dotenv
+  - editorconfig
   - ini
+  - makefile
+  - shellscript
   - toml
 ignorePaths:
   - .bashrc
-  - .ecrc.json
   - .git/
   - .gitattributes
   - .gitignore
   - .nanorc
-  - .sops.yaml
+  - .sops.yml
   - CHANGELOG.md
-  - cspell.yaml
+  - cspell.yml
   - devcontainer.json
   - Dockerfile
-  - secrets.yaml
-  - structure-test.yaml
+  - secrets.yml
 words:
+  - buildcache
   - buildkit
+  - buildx
+  - commitizen
   - devcontainer
   - devcontainers
   - dotenv
@@ -34,9 +35,13 @@ words:
   - gostamp
   - hadolint
   - ifeq
+  - ifneq
   - jsonlint
   - markdownlint
+  - opencontainers
   - shellcheck
   - shfmt
+  - sourcepaths
+  - substr
   - twelvelabs
   - yamlfmt

@@ -3,7 +3,7 @@ version: "3.7"
 
 services:
   app:
-    image: ${APP_REGISTRY}/${APP_NAME}-${APP_TARGET}:${APP_TAG}
+    image: ${APP_DOCKER_REGISTRY}/${APP_OWNER}/${APP_NAME}-${APP_TARGET}
     build:
       context: .
       target: ${APP_TARGET}
@@ -11,14 +11,20 @@ services:
         # Also set as env var in the built image
         APP_TARGET: ${APP_TARGET}
     environment:
+      - APP_DOCKER_REGISTRY
+      - APP_DOCKER_USERNAME
+      - APP_DOCKER_PASSWORD
+      - APP_DOCKER_IMAGE
       - APP_ENV
       - APP_NAME
-      - APP_REGISTRY
+      - APP_OWNER
       - APP_TAG
       - APP_TARGET
       - APP_USER
-      - DEBUG
-      - SOPS_AGE_KEY_FILE=/run/secrets/sops-age-key.txt
+      - CI
+      - GITHUB_REF_NAME
+      - GITHUB_SHA
+      - GITHUB_TOKEN
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
     hostname: ${APP_NAME}-${APP_TARGET}
     init: true
@@ -27,10 +33,9 @@ services:
       # Forward the SSH agent from the host OS so we can use git, ssh, etc.
       # See https://docs.docker.com/desktop/networking/#ssh-agent-forwarding
       - type: bind
-        source: /run/host-services/ssh-auth.sock
-        target: /run/host-services/ssh-auth.sock
-      # Allow the container to talk to the docker daemon on the host OS
-      # so we can use container-structure-test.
+        source: ${DOCKER_DESKTOP_SOCK:-/run/host-services/ssh-auth.sock}
+        target: ${DOCKER_DESKTOP_SOCK:-/run/host-services/ssh-auth.sock}
+      # Allow the container to talk to the docker daemon on the host OS.
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
@@ -41,7 +46,7 @@ services:
       # Pull in the users ssh keys for git signing
       - ~/.ssh:${APP_HOME}/.ssh
       # Pull in the sops encryption key.
-      - ~/.sops/sops-age-key.txt:/run/secrets/sops-age-key.txt
+      - ~/.sops/sops-age-key.txt:${APP_HOME}/.config/sops/age/keys.txt
       # And finally mount the current dir to /app.
       - .:/app
 

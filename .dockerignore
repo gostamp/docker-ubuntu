@@ -4,8 +4,6 @@
 .git
 .gitattributes
 .gitignore
-docker-compose.yaml
+docker-compose.yml
 Dockerfile
-LICENSE
 Makefile
-README.md

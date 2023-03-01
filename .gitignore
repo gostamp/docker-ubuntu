@@ -1,3 +1,5 @@
+.cspellcache
+.dummy
 .env
 
 sops-age-key.txt

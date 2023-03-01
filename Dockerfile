@@ -14,8 +14,8 @@ ENV APP_GID="10001" \
     LC_ALL="C.utf8" \
     RUNNING_IN_CONTAINER=1
 
-# Create app user and /app dir
 RUN <<EOF
+    # Create app user and /app dir
     groupadd --gid "${APP_GID}" "${APP_USER}"
     useradd --gid "${APP_GID}" --uid "${APP_UID}" \
             --shell /bin/bash --create-home --no-log-init "${APP_USER}"
@@ -40,6 +40,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-o", "errexit", "-c"]
 
 ARG TARGETARCH
 RUN <<EOF
+    # Install OS packages
     apt-get update
     apt-get install -y --no-install-recommends \
         "age=1.0.*" \
@@ -47,51 +48,60 @@ RUN <<EOF
         "build-essential=12.*" \
         "ca-certificates=20211016" \
         "curl=7.81.*" \
-        "docker.io=20.10.*" \
-        "gh=2.4.*" \
         "git=1:2.34.*" \
-        "gnupg=2.2.*" \
+        "gnupg=2.2.27-*" \
         "jq=1.6-*" \
-        "locales=2.35-*" \
+        "lsb-release=11.1.*" \
         "nano=6.2-*" \
         "openssh-client=1:8.9p1-*" \
-        "pkg-config=0.29.*" \
         "python3=3.10.*" \
         "python3-pip=22.0.*" \
         "shellcheck=0.8.*" \
         "sudo=1.9.*" \
         "tree=2.0.*"
+    # add docker package repo
+    mkdir -p /etc/apt/keyrings && chmod 0755 /etc/apt/keyrings
+    curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+    # install docker
+    apt-get update
+    # TODO: pin versions
+    apt-get install -y --no-install-recommends \
+        "docker-ce-cli=5:23.0.1-*" \
+        "docker-buildx-plugin=0.10.2-*" \
+        "docker-compose-plugin=2.16.0-*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOF
 
-    # non-packaged dependencies
-    CST_VERSION="v1.11.0"
-    DOTENV_LINTER_VERSION="v3.2.0"
-    EC_VERSION="2.6.0"
-    GITLEAKS_VERSION="v8.15.0"
-    GUM_VERSION="v0.7.0"
-    HADOLINT_VERSION="v2.10.0"
-    HUGO_VERSION="v0.104.3"
-    LICENSE_VERSION="v5.0.4"
-    SHFMT_VERSION="v3.5.1"
+RUN <<EOF
+    # Download and install external packages
+    set -x
+    GH_VERSION="v2.23.0"
+    GITLEAKS_VERSION="v8.16.0"
+    GUM_VERSION="v0.9.0"
+    HADOLINT_VERSION="v2.12.0"
+    HUGO_VERSION="v0.110.0"
+    SHFMT_VERSION="v3.6.0"
     SOPS_VERSION="v3.7.3"
-    YQ_VERSION="v4.28.1"
+    STYLIST_VERSION="v0.1.0"
+    SVU_VERSION="v1.9.0"
 
     ARCH="${TARGETARCH}"
 
-    # None of the following prints anything to stdout,
-    # so turn on echoing so it doesn't look like the build is stuck.
-    set -x
-
-    curl -fsSL "https://storage.googleapis.com/container-structure-test/${CST_VERSION}/container-structure-test-linux-${ARCH}" > /usr/local/bin/container-structure-test
-    curl -fsSL "https://github.com/nishanths/license/releases/download/${LICENSE_VERSION}/license-${LICENSE_VERSION}-linux-${ARCH}" > /usr/local/bin/license
     curl -fsSL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_${ARCH}" > /usr/local/bin/shfmt
     curl -fsSL "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${ARCH}" > /usr/local/bin/sops
-    curl -fsSL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${ARCH}" > /usr/local/bin/yq
+    curl -fsSL "https://github.com/twelvelabs/stylist/releases/download/${STYLIST_VERSION}/stylist_${STYLIST_VERSION#v}_linux_${ARCH}" > /usr/local/bin/stylist
+    chmod 0755 /usr/local/bin/stylist
+    /usr/local/bin/stylist completion bash > /etc/bash_completion.d/stylist
 
     pushd /tmp > /dev/null || exit
-    curl -fsSL "https://github.com/editorconfig-checker/editorconfig-checker/releases/download/${EC_VERSION}/ec-linux-${ARCH}.tar.gz" > "./ec-linux-${ARCH}.tar.gz"
-    tar -xzf "./ec-linux-${ARCH}.tar.gz"
-    cp ./bin/ec-linux-${ARCH} /usr/local/bin/ec
+    tarfile="gh_${GH_VERSION#v}_linux_${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/cli/cli/releases/download/${GH_VERSION}/${tarfile}" > "./${tarfile}"
+    curl -fsSL "https://github.com/cli/cli/releases/download/${GH_VERSION}/gh_${GH_VERSION#v}_checksums.txt" > ./checksums.txt
+    sha256sum --check --ignore-missing ./checksums.txt
+    tar -xzf "./${tarfile}"
+    cp "./${tarfile%.tar.gz}/bin/gh" /usr/local/bin/gh
+    /usr/local/bin/gh completion --shell bash > /etc/bash_completion.d/gh
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
@@ -106,6 +116,16 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
+    pushd /tmp > /dev/null || exit
+    tarfile="svu_${SVU_VERSION#v}_linux_${ARCH}.tar.gz"
+    curl -fsSL "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/${tarfile}" > "./${tarfile}"
+    curl -fsSL "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/checksums.txt" > ./checksums.txt
+    sha256sum --check --ignore-missing ./checksums.txt
+    tar -xzf "./${tarfile}"
+    cp ./svu /usr/local/bin/svu
+    popd > /dev/null || exit
+    rm -Rf /tmp/*
+
     # These dependencies use different arch names :/
     if [[ "${TARGETARCH}" == "amd64" ]]; then
         ARCH="x86_64"
@@ -113,7 +133,7 @@ RUN <<EOF
     curl -fsSL "https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-Linux-${ARCH}" > /usr/local/bin/hadolint
 
     pushd /tmp > /dev/null || exit
-    tarfile="gum_${GUM_VERSION#v}_linux_${ARCH}.tar.gz"
+    tarfile="gum_${GUM_VERSION#v}_Linux_${ARCH}.tar.gz"
     curl -fsSL "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${tarfile}" > "./${tarfile}"
     curl -fsSL "https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/checksums.txt" > ./checksums.txt
     sha256sum --check --ignore-missing ./checksums.txt
@@ -136,79 +156,51 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
-    # oh, ffs... :dissapointed:.
-    if [[ "${TARGETARCH}" == "amd64" ]]; then
-        ARCH="x86_64"
-    elif [[ "${TARGETARCH}" == "arm64" ]]; then
-        ARCH="aarch64"
-    fi
-    pushd /tmp > /dev/null || exit
-    tarfile="dotenv-linter-linux-${ARCH}.tar.gz"
-    curl -fsSL "https://github.com/dotenv-linter/dotenv-linter/releases/download/${DOTENV_LINTER_VERSION}/${tarfile}" > "./${tarfile}"
-    tar -xzf "./${tarfile}"
-    cp ./dotenv-linter /usr/local/bin/dotenv-linter
-    popd > /dev/null || exit
-    rm -Rf /tmp/*
-
     chmod -R 0755 /etc/bash_completion.d
     chmod -R 0755 /usr/local/bin
+EOF
 
+RUN <<EOF
+    # Install Node
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
     apt-get install -y --no-install-recommends "nodejs=16.*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 EOF
 
 RUN <<EOF
+    # Install Node and Python packages
     npm config set \
         "audit=false" \
         "fund=false" \
         "loglevel=warn" \
         "update-notifier=false"
     npm install \
-        "cspell@~6.12.0" \
-        "eslint@~8.25.0" \
-        "eslint-config-prettier@~8.5.0" \
-        "eslint-plugin-jsonc@~2.4.0" \
-        "eslint-plugin-json-schema-validator@~4.0.2" \
-        "eslint-plugin-toml@~0.3.1" \
-        "eslint-plugin-yml@~1.2.0" \
-        "markdownlint-cli@~0.32.2" \
-        "prettier@~2.7.1" \
-        "prettier-plugin-ini@~1.1.0" \
-        "prettier-plugin-sql@~0.12.1" \
-        "semantic-release@~19.0.5" \
+        "commitizen@~4.3.0" \
+        "cz-conventional-changelog@~3.3.0" \
+        "cspell@~6.26.3" \
+        "markdownlint-cli@~0.33.0" \
         --global
     # some node packages want to write cache files relative to their install path
     chown -R "${APP_UID}:${APP_GID}" /lib/node_modules
+    # configure commitizen
+    echo '{ "path": "cz-conventional-changelog" }' > "${APP_HOME}/.czrc"
 
     pip install \
-        "commitizen~=2.35.0" \
-        "gitlint~=0.17.0" \
-        "pre-commit~=2.20.0" \
+        "gitlint~=0.18.0" \
         --disable-pip-version-check \
         --no-cache-dir
 EOF
 
 COPY ./etc/dotfiles/* ${APP_HOME}/
 COPY ./bin ${APP_DIR}/bin
-COPY .pre-commit-config.yaml ${APP_DIR}/
 RUN <<EOF
-    # Creates pre-commit hooks and stores them in /opt/build
-    # so that they can be restored into .git/hooks on container start.
-    /app/bin/pre-commit-build.sh
-
     # Allow app user to sudo
-    echo 'app ALL=(root) NOPASSWD:ALL' > /etc/sudoers.d/app
-    chmod 0440 /etc/sudoers.d/app
+    echo "${APP_USER} ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/${APP_USER}"
+    chmod 0440 "/etc/sudoers.d/${APP_USER}"
 
     # Setup home dir
     mkdir -p "${APP_HOME}/.ssh"
     chmod 0700 "${APP_HOME}/.ssh"
-
-    chown -R "${APP_UID}:${APP_GID}" \
-        "${APP_DIR}" \
-        "${APP_HOME}" \
-        /opt/build
 EOF
 
 # Drop down to the app user
@@ -217,7 +209,7 @@ USER ${APP_USER}
 # Keep these lines as low as possible to limit the impact on the build cache.
 # See: https://docs.docker.com/engine/reference/builder/#impact-on-build-caching
 ARG APP_TARGET
-ENV APP_TARGET=${APP_TARGET} \
+ENV APP_TARGET="${APP_TARGET:-full}" \
     APP_ENV=local
 
 #######################################################
@@ -233,8 +225,6 @@ COPY --from=full ${APP_HOME} ${APP_HOME}
 
 RUN <<EOF
     rm -Rf \
-        "${APP_DIR}/bin/pre-commit-build.sh" \
-        "${APP_DIR}/bin/pre-commit-restore.sh" \
         "${APP_HOME}/.nanorc" \
         "${APP_HOME}/.ssh"
 EOF

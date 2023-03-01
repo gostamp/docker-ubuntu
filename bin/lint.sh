@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/common.sh"
+set -o errexit -o errtrace -o nounset -o pipefail
 
-flags=("--all-files")
-if [[ "${DEBUG:-}" != "" ]]; then
-    flags+=("--verbose")
+if stylist check; then
+    echo [lint] Pass ✅
+else
+    echo [lint] Fail 🔴
 fi
-
-pre-commit run "${flags[@]}"
