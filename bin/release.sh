@@ -7,15 +7,16 @@ if [[ "${CURRENT_BRANCH}" != "main" ]]; then
     exit 0
 fi
 
-git fetch --all --tags
-CURRENT_VERSION=$(svu current)
-NEXT_VERSION=$(svu next)
-
-echo "Current version: ${CURRENT_VERSION}"
-if [[ "${CURRENT_VERSION}" == "v0.0.0" ]]; then
-    echo "🔴 Invalid version ${CURRENT_VERSION} - exiting."
-    exit 0
+# cspell: words koozz
+if gh extension list | grep -q "koozz/gh-semver"; then
+    gh extension upgrade koozz/gh-semver
+else
+    gh extension install koozz/gh-semver
 fi
+
+CURRENT_VERSION=$(gh release view --json tagName --jq .tagName)
+NEXT_VERSION=$(gh semver)
+
 if [[ "${CURRENT_VERSION}" == "${NEXT_VERSION}" ]]; then
     echo "🔴 No commits since ${CURRENT_VERSION} that would trigger a new release - exiting."
     exit 0
