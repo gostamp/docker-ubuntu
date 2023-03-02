@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -o errexit -o errtrace -o nounset -o pipefail
 
+if [[ "${CI:-}" == "true" ]]; then
+    git config --global --add safe.directory /app
+fi
+
 CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
 if [[ "${CURRENT_BRANCH}" != "main" ]]; then
     echo "🔴 Branch '${CURRENT_BRANCH}' is not a release branch - exiting."

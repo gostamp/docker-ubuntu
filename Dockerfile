@@ -38,6 +38,13 @@ FROM base AS full
 # See: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-o", "errexit", "-c"]
 
+RUN <<EOF
+    # Create CI user
+    groupadd --gid 123 "ci"
+    useradd --gid 123 --uid 1001 \
+            --shell /bin/bash --create-home --no-log-init "ci"
+EOF
+
 ARG TARGETARCH
 RUN <<EOF
     # Install OS packages
@@ -202,6 +209,8 @@ RUN <<EOF
     mkdir -p "${APP_HOME}/.ssh"
     chmod 0700 "${APP_HOME}/.ssh"
 EOF
+
+RUN chown -R ci:ci /home/ci
 
 # Drop down to the app user
 USER ${APP_USER}
