@@ -210,8 +210,6 @@ RUN <<EOF
     chmod 0700 "${APP_HOME}/.ssh"
 EOF
 
-RUN chown -R ci:ci /home/ci
-
 # Drop down to the app user
 USER ${APP_USER}
 
