@@ -12,6 +12,10 @@ CURRENT_VERSION=$(svu current)
 NEXT_VERSION=$(svu next)
 
 echo "Current version: ${CURRENT_VERSION}"
+if [[ "${CURRENT_VERSION}" == "v0.0.0" ]]; then
+    echo "🔴 Invalid version ${CURRENT_VERSION} - exiting."
+    exit 0
+fi
 if [[ "${CURRENT_VERSION}" == "${NEXT_VERSION}" ]]; then
     echo "🔴 No commits since ${CURRENT_VERSION} that would trigger a new release - exiting."
     exit 0
@@ -44,6 +48,16 @@ echo "${APP_DOCKER_PASSWORD}" | docker login "${APP_DOCKER_REGISTRY}" \
     --username "${APP_DOCKER_USERNAME}" \
     --password-stdin 2>/dev/null
 
+# Create a buildx build node and wait for it to come online.
+builder="builder-$(date +%s)"
+docker buildx create \
+    --name "${builder}" \
+    --driver docker-container \
+    --use
+docker buildx inspect \
+    --bootstrap \
+    --builder "${builder}"
+
 # Build and push the image.
 docker buildx bake \
     --push \
@@ -62,6 +76,11 @@ docker buildx bake \
     --set "app.tags=${APP_DOCKER_IMAGE}:${major}.${minor}.${patch}" \
     --set "app.tags=${APP_DOCKER_IMAGE}:${major}.${minor}" \
     app
+
+# Clean up the build node.
+docker buildx rm \
+    --builder "${builder}" \
+    --force
 
 # Publish the release.
 gh release create "${NEXT_VERSION}" --generate-notes
