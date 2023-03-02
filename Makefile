@@ -63,10 +63,6 @@ run: ## Run the container
 release: ## Create a new release tag
 	$(run) ./bin/release.sh
 
-.PHONY: publish
-publish: ## Publish a new release
-	$(run) ./bin/publish.sh
-
 .PHONY: shell
 shell: ## Shell into the container
 	$(run) bash
