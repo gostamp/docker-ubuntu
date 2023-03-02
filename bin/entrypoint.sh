@@ -18,6 +18,7 @@ if [[ "${CI:-}" == "true" ]]; then
     echo "CURRENT_UID: $(id -u)"
     echo "CURRENT_GID: $(id -g)"
     echo ""
+    git config --global --add safe.directory /app
 fi
 
 if [ "${APP_TARGET}" == "full" ] && [ "${CI:-}" != "true" ]; then

@@ -17,9 +17,7 @@ ifeq ($(CI),true)
     # Ensure file exists for another compose bind mount.
     $(shell touch ~/.gitconfig)
     # Customize user so FS permissions are correct.
-    # export APP_USER := $(shell id -u):$(shell id -g)
     export APP_USER := ci:ci
-    export APP_HOME := /home/ci
     # Can only get the username from an env var in CI.
     export APP_DOCKER_USERNAME ?= $(GITHUB_ACTOR)
 else

@@ -16,7 +16,6 @@ services:
       - APP_DOCKER_PASSWORD
       - APP_DOCKER_IMAGE
       - APP_ENV
-      - APP_HOME
       - APP_NAME
       - APP_OWNER
       - APP_TAG
