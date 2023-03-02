@@ -12,6 +12,15 @@ secrets_path="/app/etc/${APP_ENV}/secrets.yml"
 # need to be passed through the entrypoint.
 export RUNNING_IN_ENTRYPOINT=1
 
+if [[ "${CI:-}" == "true" ]]; then
+    echo ""
+    echo "CI: true"
+    echo "CURRENT_UID: $(id -u)"
+    echo "CURRENT_GID: $(id -g)"
+    echo ""
+    git config --global --add safe.directory /app
+fi
+
 if [ "${APP_TARGET}" == "full" ] && [ "${CI:-}" != "true" ]; then
     # Sigh... get it together Docker for Mac :roll_eyes:
     sudo mkdir -p /run/host-services
