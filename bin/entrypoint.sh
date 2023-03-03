@@ -4,7 +4,6 @@ set -o errexit -o errtrace -o nounset -o pipefail
 APP_ENV="${APP_ENV:?}"
 APP_TARGET="${APP_TARGET:?}"
 
-key_path="${SOPS_AGE_KEY_FILE:-/home/app/.config/sops/age/keys.txt}"
 config_path="/app/etc/${APP_ENV}/config.env"
 secrets_path="/app/etc/${APP_ENV}/secrets.yml"
 
@@ -17,6 +16,8 @@ if [[ "${CI:-}" == "true" ]]; then
     echo "CI: true"
     echo "CURRENT_UID: $(id -u)"
     echo "CURRENT_GID: $(id -g)"
+    echo ""
+    echo "SOME_SECRET: ${SOME_SECRET}"
     echo ""
     git config --global --add safe.directory /app
 fi
@@ -44,12 +45,8 @@ if [[ -f "${config_path}" ]]; then
     set +o allexport
 fi
 
-# Use sops if both secrets.yml and sops-age-key.txt are present.
-if
-    [[ -f "${secrets_path}" ]] && # exists and is file
-        [[ -f "${key_path}" ]] && # exists and is file
-        [[ -s "${key_path}" ]]    # exists and has a size greater than zero
-then
+# Use sops if the secrets file exists.
+if [[ -f "${secrets_path}" ]]; then
     sops exec-env "${secrets_path}" "$*"
 else
     exec "$@"

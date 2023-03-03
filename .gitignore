@@ -1,5 +1,6 @@
+.DS_Store
 .cspellcache
 .dummy
 .env
 
-sops-age-key.txt
+sops-encryption-key.*

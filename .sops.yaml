@@ -1,0 +1,8 @@
+---
+# NOTE: This file _must_ end in `.yaml` for SOPS to automatically find it.
+creation_rules:
+  - path_regex: etc/local/.*
+    pgp: F1E64AE02D44A277E640D1D8139717419FC6BB5C
+
+  - path_regex: etc/test/.*
+    pgp: F1E64AE02D44A277E640D1D8139717419FC6BB5C

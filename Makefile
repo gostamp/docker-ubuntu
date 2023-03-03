@@ -18,6 +18,7 @@ ifeq ($(CI),true)
     $(shell touch ~/.gitconfig)
     # Customize user so FS permissions are correct.
     export APP_USER := ci:ci
+    export APP_HOME := /home/ci
     # Can only get the username from an env var in CI.
     export APP_DOCKER_USERNAME ?= $(GITHUB_ACTOR)
 else
