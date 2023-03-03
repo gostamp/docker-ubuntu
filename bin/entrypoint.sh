@@ -17,12 +17,7 @@ if [[ "${CI:-}" == "true" ]]; then
     echo "CURRENT_UID: $(id -u)"
     echo "CURRENT_GID: $(id -g)"
     echo ""
-    mkdir -p \
-        /home/ci/.gnupg \
-        /home/ci/.ssh
-    chown -R ci:ci \
-        /home/ci/.gnupg \
-        /home/ci/.ssh
+    sudo chown -R ci:ci /home/ci
     git config --global --add safe.directory /app
 fi
 

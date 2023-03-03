@@ -192,6 +192,9 @@ RUN <<EOF
     # Allow app user to sudo
     echo "${APP_USER} ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/${APP_USER}"
     chmod 0440 "/etc/sudoers.d/${APP_USER}"
+    # Allow ci user to sudo
+    echo "ci ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/ci"
+    chmod 0440 "/etc/sudoers.d/ci"
 
     # Setup home dir
     mkdir -p "${APP_HOME}/.ssh"
