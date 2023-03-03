@@ -50,7 +50,6 @@ RUN <<EOF
     # Install OS packages
     apt-get update
     apt-get install -y --no-install-recommends \
-        "age=1.0.*" \
         "bash-completion=1:2.11-*" \
         "build-essential=12.*" \
         "ca-certificates=20211016" \
@@ -91,7 +90,6 @@ RUN <<EOF
     SHFMT_VERSION="v3.6.0"
     SOPS_VERSION="v3.7.3"
     STYLIST_VERSION="v0.1.0"
-    SVU_VERSION="v1.9.0"
 
     ARCH="${TARGETARCH}"
 
@@ -120,16 +118,6 @@ RUN <<EOF
     tar -xzf "./${tarfile}"
     ./hugo completion bash > /etc/bash_completion.d/hugo
     cp ./hugo /usr/local/bin/hugo
-    popd > /dev/null || exit
-    rm -Rf /tmp/*
-
-    pushd /tmp > /dev/null || exit
-    tarfile="svu_${SVU_VERSION#v}_linux_${ARCH}.tar.gz"
-    curl -fsSL "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/${tarfile}" > "./${tarfile}"
-    curl -fsSL "https://github.com/caarlos0/svu/releases/download/${SVU_VERSION}/checksums.txt" > ./checksums.txt
-    sha256sum --check --ignore-missing ./checksums.txt
-    tar -xzf "./${tarfile}"
-    cp ./svu /usr/local/bin/svu
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
@@ -204,6 +192,9 @@ RUN <<EOF
     # Allow app user to sudo
     echo "${APP_USER} ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/${APP_USER}"
     chmod 0440 "/etc/sudoers.d/${APP_USER}"
+    # Allow ci user to sudo
+    echo "ci ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/ci"
+    chmod 0440 "/etc/sudoers.d/ci"
 
     # Setup home dir
     mkdir -p "${APP_HOME}/.ssh"

@@ -41,12 +41,10 @@ services:
         target: /var/run/docker.sock
       # Persist home dir content (bash history, caches, etc).
       - home-data:${APP_HOME}
-      # Pull in the user's gitconfig.
-      - ~/.gitconfig:${APP_HOME}/.gitconfig
+      # Pull in the user's gpg dir
+      - ~/.gnupg:${APP_HOME}/.gnupg
       # Pull in the users ssh keys for git signing
       - ~/.ssh:${APP_HOME}/.ssh
-      # Pull in the sops encryption key.
-      - ~/.sops/sops-age-key.txt:${APP_HOME}/.config/sops/age/keys.txt
       # And finally mount the current dir to /app.
       - .:/app
 

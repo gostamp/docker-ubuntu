@@ -28,7 +28,7 @@
                 ],
                 "hadolint.hadolintPath": "/usr/local/bin/hadolint",
                 "sarif-viewer.explorer.openWhenNoResults": false,
-                "sarif-viewer.connectToGithubCodeScanning": "on",
+                "sarif-viewer.connectToGithubCodeScanning": "off",
                 "shellcheck.customArgs": [
                     "-x"
                 ],

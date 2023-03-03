@@ -10,19 +10,25 @@ fi
 dependencies=(
     "docker"
     "gh"
+    "gpg"
     "make"
 )
 for dependency in "${dependencies[@]}"; do
-    if ! command -v "${dependency}" >/dev/null 2>&1; then
+    if command -v "${dependency}" >/dev/null 2>&1; then
+        echo "Found required dependency: ${dependency}"
+    else
         echo "Unable to find dependency: ${dependency}"
         exit 1
     fi
 done
 
-# Ensure the sops key file exists (compose will error if missing)
-mkdir -p ~/.sops
-touch ~/.sops/sops-age-key.txt
-chmod 0600 ~/.sops/sops-age-key.txt
+repo_name=$(gh api /repos/:owner/:repo | jq -r .full_name)
+if gpg --list-secret-keys "${repo_name}" &>/dev/null; then
+    echo "Found required GPG key: ${repo_name}"
+else
+    echo "Unable to find GPG key: ${repo_name}"
+    exit 1
+fi
 
 # Build the image.
 image_name=$(docker compose convert --images app)

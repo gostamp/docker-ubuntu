@@ -37,6 +37,15 @@ jobs:
       - name: Expose GitHub Runtime
         uses: crazy-max/ghaction-github-runtime@747e98cd97bb9cfed8fe0165c821a83139bfdd67 # pin@v2.1.0
 
+      - name: Import SOPS GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@111c56156bcc6918c056dbef52164cfa583dc549 # pin@v5.2.0
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY_SOPS }}
+
+      - name: List GPG keys
+        run: gpg -K
+
       - name: Build
         run: make docker-build
 
