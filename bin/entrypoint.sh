@@ -17,7 +17,7 @@ if [[ "${CI:-}" == "true" ]]; then
     echo "CURRENT_UID: $(id -u)"
     echo "CURRENT_GID: $(id -g)"
     echo ""
-    echo "SOME_SECRET: ${SOME_SECRET}"
+    echo "SOME_SECRET: ${SOME_SECRET:-}"
     echo ""
     git config --global --add safe.directory /app
 fi
