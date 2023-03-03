@@ -7,7 +7,6 @@ on:
       - main
   workflow_dispatch:
 
-
 env:
   IMAGE_NAME: ghcr.io/gostamp/ubuntu-full
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,6 +36,9 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # pin@v4.0.0
         with:
           load: true
+          build-args: |
+            APP_TARGET=full
+            BUILDKIT_MULTI_PLATFORM=1
           context: .
           cache-from: |
             type=gha
@@ -45,10 +47,10 @@ jobs:
           cache-to: |
             type=gha
           tags: ${{ env.IMAGE_NAME }}:latest
+          target: full
 
       # cspell: words ghaction
       - name: Import SOPS GPG key
-        id: import_gpg
         uses: crazy-max/ghaction-import-gpg@111c56156bcc6918c056dbef52164cfa583dc549 # pin@v5.2.0
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY_SOPS }}
@@ -106,15 +108,21 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # pin@v4.0.0
         with:
           push: true
+          build-args: |
+            APP_TARGET=full
+            BUILDKIT_MULTI_PLATFORM=1
           context: .
           cache-from: |
             type=registry,ref=${{ env.IMAGE_NAME }}:latest
             type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
           cache-to: |
             type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          target: full
 
       - name: Create release
         run: gh release create '${{ env.VERSION }}' --generate-notes
