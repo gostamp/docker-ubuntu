@@ -56,22 +56,18 @@ lint: ## Lint files
 format: ## Format files
 	$(run) ./bin/format.sh
 
-.PHONY: run
-run: ## Run the container
-	$(run) ./bin/command.sh
-
-.PHONY: release
-release: ## Create a new release tag
-	$(run) ./bin/release.sh
-
-.PHONY: shell
-shell: ## Shell into the container
-	$(run) bash
-
 .PHONY: test
 test: APP_ENV := test
 test: ## Test the container
 	$(run) ./bin/test.sh
+
+.PHONY: run
+run: ## Run the container
+	$(run) ./bin/command.sh
+
+.PHONY: version
+version: ## Calculate the next release version
+	$(run) ./bin/version.sh
 
 .PHONY: pre-commit
 pre-commit:
@@ -112,6 +108,10 @@ docker-clean: ## Cleanup containers and persistent volumes
 setup: ## Setup everything needed for local development
 	./bin/setup-host.sh
 	$(run) ./bin/setup-container.sh
+
+.PHONY: shell
+shell: ## Shell into the container
+	$(run) bash
 
 # Via https://www.thapaliya.com/en/writings/well-documented-makefiles/
 # Note: The `##@` comments determine grouping
