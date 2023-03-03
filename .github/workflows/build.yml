@@ -38,7 +38,6 @@ jobs:
           load: true
           build-args: |
             APP_TARGET=full
-            BUILDKIT_MULTI_PLATFORM=1
           context: .
           cache-from: |
             type=gha

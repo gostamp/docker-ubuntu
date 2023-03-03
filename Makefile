@@ -86,11 +86,7 @@ commit-msg:
 
 .PHONY: docker-build
 docker-build: ## Build the docker image
-ifeq ($(CI),true)
-	docker buildx bake --load --set app.cache-from=type=gha --set app.cache-from=type=registry,ref=$(APP_DOCKER_IMAGE):buildcache --set app.cache-to=type=gha app
-else
 	docker compose build app
-endif
 
 .PHONY: docker-inspect
 docker-inspect:
