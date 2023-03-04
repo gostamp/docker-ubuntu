@@ -65,7 +65,14 @@ jobs:
       - name: Calculate next version
         if: github.ref_name == 'main'
         id: version
-        run: make version
+        # cspell: words koozz
+        run: |
+          gh extension install koozz/gh-semver
+          CURRENT_VERSION=$(gh release view --json tagName --jq .tagName)
+          NEXT_VERSION=$(gh semver)
+          if [[ "$CURRENT_VERSION" != "$NEXT_VERSION" ]]; then
+            echo "next_version=$NEXT_VERSION" >>"$GITHUB_OUTPUT"
+          fi
 
   release:
     runs-on: ubuntu-latest
