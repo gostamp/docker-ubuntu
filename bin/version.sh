@@ -27,4 +27,8 @@ fi
 echo "Next version:    $NEXT_VERSION"
 
 # Set the `next_version` output parameter on the workflow step.
-echo "next_version=$NEXT_VERSION" >>"${GITHUB_OUTPUT:-/dev/null}"
+if [[ -f "${GITHUB_OUTPUT:-}" ]]; then
+    set -x
+    echo "next_version=$NEXT_VERSION" >>"${GITHUB_OUTPUT:-}"
+    set +x
+fi

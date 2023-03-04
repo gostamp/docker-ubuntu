@@ -22,8 +22,10 @@ services:
       - APP_TARGET
       - APP_USER
       - CI
+      - GITHUB_OUTPUT
       - GITHUB_REF_NAME
       - GITHUB_SHA
+      - GITHUB_STEP_SUMMARY
       - GITHUB_TOKEN
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
     hostname: ${APP_NAME}-${APP_TARGET}
