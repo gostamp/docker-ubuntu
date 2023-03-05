@@ -15,7 +15,7 @@ fi
 
 if [[ "$CURRENT_VERSION" != "$NEXT_VERSION" ]]; then
     # TODO: create a signed tag and add `--verify-tag` to the release step
-    echo gh release create "$NEXT_VERSION" --generate-notes $pre
+    gh release create "$NEXT_VERSION" --generate-notes $pre
 else
     echo "Nothing to release."
 fi

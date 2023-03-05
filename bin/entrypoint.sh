@@ -12,11 +12,6 @@ secrets_path="/app/etc/${APP_ENV}/secrets.yml"
 export RUNNING_IN_ENTRYPOINT=1
 
 if [[ "${CI:-}" == "true" ]]; then
-    echo ""
-    echo "CI: true"
-    echo "CURRENT_UID: $(id -u)"
-    echo "CURRENT_GID: $(id -g)"
-    echo ""
     sudo chown -R ci:ci /home/ci
     git config --global --add safe.directory /app
 fi
