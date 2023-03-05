@@ -14,23 +14,15 @@ ifeq ($(CI),true)
     # that the compose file is attempting to bind mount.
     $(shell touch .dummy)
     export DOCKER_DESKTOP_SOCK := $(shell echo "$$(pwd)/.dummy")
-    # Ensure file exists for another compose bind mount.
-    $(shell touch ~/.gitconfig)
     # Customize user so FS permissions are correct.
     export APP_USER := ci:ci
     export APP_HOME := /home/ci
-    # Can only get the username from an env var in CI.
-    export APP_DOCKER_USERNAME ?= $(GITHUB_ACTOR)
-else
-    export APP_DOCKER_USERNAME ?= $(shell gh api /user --jq .login)
 endif
 
 # Always use buildkit
 export DOCKER_BUILDKIT := 1
+# Setting this var authenticates `gh` inside the container.
 export GITHUB_TOKEN ?= $(shell gh auth token)
-
-export APP_DOCKER_IMAGE := ${APP_DOCKER_REGISTRY}/${APP_OWNER}/${APP_NAME}-${APP_TARGET}
-export APP_DOCKER_PASSWORD ?= $(GITHUB_TOKEN)
 
 # Support running make commands from both host and container.
 ifneq ($(RUNNING_IN_CONTAINER),1)
@@ -64,6 +56,10 @@ test: ## Test the container
 .PHONY: run
 run: ## Run the container
 	$(run) ./bin/command.sh
+
+.PHONY: release
+release: ## Create a new GitHub release
+	$(run) ./bin/release.sh
 
 .PHONY: version
 version: ## Calculate the next release version
