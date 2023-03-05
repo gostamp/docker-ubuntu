@@ -68,13 +68,14 @@ jobs:
         uses: sigstore/cosign-installer@c3667d99424e7e6047999fb6246c0da843953c65 # pin@v3.0.1
 
       - name: Sign images
-        run: echo "$TAGS" | xargs -n 1 -d '\n' cosign sign --recursive --yes
+        run: echo "$TAGS" | xargs -n1 -d '\n' cosign sign --recursive --yes
         env:
-          COSIGN_EXPERIMENTAL: 1
           TAGS: ${{ steps.meta.outputs.tags }}
 
       - name: Verify images
-        run: echo "$TAGS" | xargs -n 1 -d '\n' cosign verify
+        run: |
+          echo "$TAGS" | xargs -n1 -d '\n' -I {} cosign verify {} \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+            --certificate-identity-regexp="https://github.com/gostamp/docker-ubuntu/.github/workflows/release.yml"
         env:
-          COSIGN_EXPERIMENTAL: 1
           TAGS: ${{ steps.meta.outputs.tags }}

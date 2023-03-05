@@ -38,6 +38,7 @@ words:
   - ifneq
   - jsonlint
   - markdownlint
+  - oidc
   - opencontainers
   - shellcheck
   - shfmt
