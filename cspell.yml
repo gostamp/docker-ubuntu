@@ -41,6 +41,7 @@ words:
   - opencontainers
   - shellcheck
   - shfmt
+  - sigstore
   - sourcepaths
   - substr
   - twelvelabs
