@@ -42,8 +42,8 @@ jobs:
             type=gha
             type=registry,ref=${{ env.IMAGE_NAME }}:latest
             type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
-          # cache-to: |
-          #   type=gha
+          cache-to: |
+            type=gha
           tags: ${{ env.IMAGE_NAME }}:latest
           target: full
 
@@ -60,17 +60,10 @@ jobs:
         run: make test
 
       - name: Create Release
-        if: github.ref_name == 'main'
-        # cspell: words koozz
-        run: |
-          gh extension install koozz/gh-semver
-          CURRENT_VERSION=$(gh release view --json tagName --jq .tagName)
-          NEXT_VERSION=$(gh semver)
-          if [[ "$CURRENT_VERSION" != "$NEXT_VERSION" ]]; then
-            gh release create "$NEXT_VERSION" --generate-notes
-          else
-            echo "Nothing to release."
-          fi
+        # Change to support different release channels
+        # Versions from a non-main branch will look like: `v.0.0.0-branch-name`.
+        if: contains(fromJSON('["main", "beta"]'), github.ref_name)
+        run: make release
         env:
           # Using a PAT so we trigger the release workflow
           # (the default token does not trigger events).
