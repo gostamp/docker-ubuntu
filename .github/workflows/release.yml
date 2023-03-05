@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -62,3 +63,16 @@ jobs:
             linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           target: full
+
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@v3.0.1
+
+      - name: Sign images
+        run: echo "${{ steps.meta.outputs.tags }}" | xargs -n 1 -d '\n' cosign sign
+        env:
+          COSIGN_EXPERIMENTAL: 1
+
+      - name: Verify images
+        run: echo "${{ steps.meta.outputs.tags }}" | xargs -n 1 -d '\n' cosign verify
+        env:
+          COSIGN_EXPERIMENTAL: 1
