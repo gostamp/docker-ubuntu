@@ -68,11 +68,13 @@ jobs:
         uses: sigstore/cosign-installer@c3667d99424e7e6047999fb6246c0da843953c65 # pin@v3.0.1
 
       - name: Sign images
-        run: echo "${{ steps.meta.outputs.tags }}" | xargs -n 1 -d '\n' cosign sign
+        run: echo "$TAGS" | xargs -n 1 -d '\n' cosign sign --recursive --yes
         env:
           COSIGN_EXPERIMENTAL: 1
+          TAGS: ${{ steps.meta.outputs.tags }}
 
       - name: Verify images
-        run: echo "${{ steps.meta.outputs.tags }}" | xargs -n 1 -d '\n' cosign verify
+        run: echo "$TAGS" | xargs -n 1 -d '\n' cosign verify
         env:
           COSIGN_EXPERIMENTAL: 1
+          TAGS: ${{ steps.meta.outputs.tags }}
