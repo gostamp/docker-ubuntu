@@ -1,4 +1,32 @@
 processors:
+  - name: actionlint
+    includes:
+      - ".github/workflows/*.{yml,yaml}"
+    check:
+      command: actionlint --format '{{json .}}'
+      input: variadic
+      output: stdout
+      format: json
+      mapping:
+        level: "error"
+        path: "{{ .filepath }}"
+        start_line: "{{ .line }}"
+        start_column: "{{ .column }}"
+        end_line: "{{ .line }}"
+        end_column: "{{ .end_column }}"
+        rule_id: "{{ .kind }}"
+        rule_name: "{{ .kind }}"
+        rule_description: "{{ .message }}"
+
+  - name: pin-github-action
+    includes:
+      - ".github/workflows/*.{yml,yaml}"
+    fix:
+      command: pin-github-action
+      input: variadic
+      output: stdout
+      format: none
+
   - preset: cspell
     # name: cspell
     # includes:

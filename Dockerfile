@@ -73,6 +73,7 @@ EOF
 RUN <<EOF
     # Download and install external packages
     set -x
+    ACTIONLINT_VERSION="v1.6.23"
     GH_VERSION="v2.23.0"
     GITLEAKS_VERSION="v8.16.0"
     GUM_VERSION="v0.9.0"
@@ -89,6 +90,17 @@ RUN <<EOF
     curl -fsSL "https://github.com/twelvelabs/stylist/releases/download/${STYLIST_VERSION}/stylist_${STYLIST_VERSION#v}_linux_${ARCH}" > /usr/local/bin/stylist
     chmod 0755 /usr/local/bin/stylist
     /usr/local/bin/stylist completion bash > /etc/bash_completion.d/stylist
+
+    pushd /tmp >/dev/null || exit
+    tarfile="actionlint_${ACTIONLINT_VERSION#v}_linux_${ARCH}.tar.gz"
+    checksums="actionlint_${ACTIONLINT_VERSION#v}_checksums.txt"
+    curl -fsSL "https://github.com/rhysd/actionlint/releases/download/${ACTIONLINT_VERSION}/${tarfile}" >"./${tarfile}"
+    curl -fsSL "https://github.com/rhysd/actionlint/releases/download/${ACTIONLINT_VERSION}/${checksums}" >"./${checksums}"
+    sha256sum --check --ignore-missing "./${checksums}"
+    tar -xzf "./${tarfile}"
+    cp ./actionlint /usr/local/bin/actionlint
+    popd >/dev/null || exit
+    rm -Rf /tmp/*
 
     pushd /tmp > /dev/null || exit
     tarfile="gh_${GH_VERSION#v}_linux_${ARCH}.tar.gz"
@@ -165,6 +177,7 @@ RUN <<EOF
         "cz-conventional-changelog@~3.3.0" \
         "cspell@~6.26.3" \
         "markdownlint-cli@~0.33.0" \
+        "pin-github-action@~1.8.0" \
         --global
     # some node packages want to write cache files relative to their install path
     chown -R "${APP_UID}:${APP_GID}" /lib/node_modules
