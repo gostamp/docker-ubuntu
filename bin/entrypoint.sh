@@ -22,8 +22,7 @@ if [ "${APP_TARGET}" == "full" ] && [ "${CI:-}" != "true" ]; then
     sudo chown -R app:app \
         /app \
         /home/app \
-        /run/host-services \
-        /run/docker.sock
+        /run/host-services
 
     # Ensure git hooks are installed.
     mkdir -p .git/hooks && rm -Rf .git/hooks/*

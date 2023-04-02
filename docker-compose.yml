@@ -32,10 +32,6 @@ services:
       - type: bind
         source: ${DOCKER_DESKTOP_SOCK:-/run/host-services/ssh-auth.sock}
         target: ${DOCKER_DESKTOP_SOCK:-/run/host-services/ssh-auth.sock}
-      # Allow the container to talk to the docker daemon on the host OS.
-      - type: bind
-        source: /var/run/docker.sock
-        target: /var/run/docker.sock
       # Persist home dir content (bash history, caches, etc).
       - home-data:${APP_HOME}
       # Pull in the user's gpg dir

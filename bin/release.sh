@@ -6,6 +6,7 @@ if [[ "${CI:-}" != "true" ]]; then
     exit 1
 fi
 
+# shellcheck source=version.sh
 source /app/bin/version.sh
 
 pre=""

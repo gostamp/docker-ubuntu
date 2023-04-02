@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.4
 #######################################################
 # Common base image for each env
+# Ubuntu source: https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/?h=jammy-22.04
 #######################################################
 FROM ubuntu:22.04 AS base
 
@@ -25,7 +26,7 @@ EOF
 
 WORKDIR ${APP_DIR}
 ENTRYPOINT ["/app/bin/entrypoint.sh"]
-CMD ["/app/bin/command.sh"]
+CMD ["/app/bin/run.sh"]
 
 #######################################################
 # APP_TARGET: full
@@ -48,6 +49,8 @@ EOF
 ARG TARGETARCH
 RUN <<EOF
     # Install OS packages
+    # Default package manifest:
+    # - https://git.launchpad.net/cloud-images/+oci/ubuntu-base/tree/ubuntu-jammy-oci-arm64-root.manifest?h=jammy-22.04
     apt-get update
     apt-get install -y --no-install-recommends \
         "bash-completion=1:2.11-*" \
@@ -57,7 +60,6 @@ RUN <<EOF
         "git=1:2.34.*" \
         "gnupg=2.2.27-*" \
         "jq=1.6-*" \
-        "lsb-release=11.1.*" \
         "nano=6.2-*" \
         "openssh-client=1:8.9p1-*" \
         "python3=3.10.*" \
@@ -65,17 +67,6 @@ RUN <<EOF
         "shellcheck=0.8.*" \
         "sudo=1.9.*" \
         "tree=2.0.*"
-    # add docker package repo
-    mkdir -p /etc/apt/keyrings && chmod 0755 /etc/apt/keyrings
-    curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
-    # install docker
-    apt-get update
-    # TODO: pin versions
-    apt-get install -y --no-install-recommends \
-        "docker-ce-cli=5:23.0.1-*" \
-        "docker-buildx-plugin=0.10.2-*" \
-        "docker-compose-plugin=2.16.0-*"
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 EOF
 
@@ -89,7 +80,7 @@ RUN <<EOF
     HUGO_VERSION="v0.110.0"
     SHFMT_VERSION="v3.6.0"
     SOPS_VERSION="v3.7.3"
-    STYLIST_VERSION="v0.1.0"
+    STYLIST_VERSION="v0.1.1"
 
     ARCH="${TARGETARCH}"
 
@@ -217,15 +208,17 @@ ENV APP_TARGET="${APP_TARGET:-full}" \
 #######################################################
 FROM base AS slim
 
+RUN <<EOF
+    # Install OS packages
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        "ca-certificates=20211016" \
+        "gnupg=2.2.27-*"
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOF
+
 COPY --from=full /usr/local/bin/sops /usr/local/bin/sops
 COPY --from=full ${APP_DIR} ${APP_DIR}
-COPY --from=full ${APP_HOME} ${APP_HOME}
-
-RUN <<EOF
-    rm -Rf \
-        "${APP_HOME}/.nanorc" \
-        "${APP_HOME}/.ssh"
-EOF
 
 USER ${APP_USER}
 

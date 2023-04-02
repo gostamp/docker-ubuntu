@@ -55,7 +55,7 @@ test: ## Test the container
 
 .PHONY: run
 run: ## Run the container
-	$(run) ./bin/command.sh
+	$(run) ./bin/run.sh
 
 .PHONY: release
 release: ## Create a new GitHub release
