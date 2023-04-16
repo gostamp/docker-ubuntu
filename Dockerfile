@@ -60,25 +60,44 @@ RUN <<EOF
         "git=1:2.34.*" \
         "gnupg=2.2.27-*" \
         "jq=1.6-*" \
+        "lsb-release=11.1.*" \
         "nano=6.2-*" \
         "openssh-client=1:8.9p1-*" \
         "python3=3.10.*" \
         "python3-pip=22.0.*" \
+        "rcm=1.3.*" \
         "shellcheck=0.8.*" \
         "sudo=1.9.*" \
         "tree=2.0.*"
+
+    # Now that lsb_release and curl are installed...
+    DISTRO="$(lsb_release -c -s)"
+    # Add Node repo
+    echo "deb https://deb.nodesource.com/node_16.x ${DISTRO} main" > /etc/apt/sources.list.d/nodesource.list
+    echo "deb-src https://deb.nodesource.com/node_16.x ${DISTRO} main" >> /etc/apt/sources.list.d/nodesource.list
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key > /etc/apt/trusted.gpg.d/nodesource.asc
+    # Add Postgres repo
+    echo "deb http://apt.postgresql.org/pub/repos/apt ${DISTRO}-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/pgdg.asc
+    # Install
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        "nodejs=16.*" \
+        "postgresql-client=15+*"
+
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 EOF
 
 RUN <<EOF
     # Download and install external packages
     set -x
-    ACTIONLINT_VERSION="v1.6.23"
-    GH_VERSION="v2.23.0"
-    GITLEAKS_VERSION="v8.16.0"
-    GUM_VERSION="v0.9.0"
+    ACTIONLINT_VERSION="v1.6.24"
+    GH_VERSION="v2.27.0"
+    GITLEAKS_VERSION="v8.16.2"
+    GUM_VERSION="v0.10.0"
     HADOLINT_VERSION="v2.12.0"
-    HUGO_VERSION="v0.110.0"
+    HUGO_VERSION="v0.111.3"
+    MIGRATE_VERSION="v4.15.2"
     SHFMT_VERSION="v3.6.0"
     SOPS_VERSION="v3.7.3"
     STYLIST_VERSION="v0.1.1"
@@ -124,6 +143,17 @@ RUN <<EOF
     popd > /dev/null || exit
     rm -Rf /tmp/*
 
+    pushd /tmp >/dev/null || exit
+    tarfile="migrate.linux-${ARCH}.tar.gz"
+    checksums="sha256sum.txt"
+    curl -fsSL "https://github.com/golang-migrate/migrate/releases/download/${MIGRATE_VERSION}/${tarfile}" >"./${tarfile}"
+    curl -fsSL "https://github.com/golang-migrate/migrate/releases/download/${MIGRATE_VERSION}/${checksums}" >"./${checksums}"
+    sha256sum --check --ignore-missing "./${checksums}"
+    tar -xzf "./${tarfile}"
+    cp ./migrate /usr/local/bin/migrate
+    popd >/dev/null || exit
+    rm -Rf /tmp/*
+
     # These dependencies use different arch names :/
     if [[ "${TARGETARCH}" == "amd64" ]]; then
         ARCH="x86_64"
@@ -159,13 +189,6 @@ RUN <<EOF
 EOF
 
 RUN <<EOF
-    # Install Node
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-    apt-get install -y --no-install-recommends "nodejs=16.*"
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-EOF
-
-RUN <<EOF
     # Install Node and Python packages
     npm config set \
         "audit=false" \
@@ -175,7 +198,7 @@ RUN <<EOF
     npm install \
         "commitizen@~4.3.0" \
         "cz-conventional-changelog@~3.3.0" \
-        "cspell@~6.26.3" \
+        "cspell@~6.31.1" \
         "markdownlint-cli@~0.33.0" \
         "pin-github-action@~1.8.0" \
         --global
@@ -185,7 +208,7 @@ RUN <<EOF
     echo '{ "path": "cz-conventional-changelog" }' > "${APP_HOME}/.czrc"
 
     pip install \
-        "gitlint~=0.18.0" \
+        "gitlint~=0.19.1" \
         --disable-pip-version-check \
         --no-cache-dir
 EOF
